@@ -70,7 +70,7 @@ using System.IO;
         private void Export_Form_Load(object sender, EventArgs e)
         {
             
-            IEntity quote = null;
+            //IEntity quote = null;
             List<IModel> listModel = new List<IModel> ();
           
             
