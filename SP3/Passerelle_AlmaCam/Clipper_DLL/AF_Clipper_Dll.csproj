@@ -72,10 +72,12 @@
     <Reference Include="Actcut.QuoteModel, Version=2.1.2.54719, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\..\..\..\AlmaCAM\Bin\Actcut.QuoteModel.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Actcut.QuoteModelManager, Version=2.1.2.54719, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\..\..\..\AlmaCAM\Bin\Actcut.QuoteModelManager.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Actcut.ResourceManager, Version=1.0.1.52024, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
@@ -90,6 +92,7 @@
     <Reference Include="AF_ImportTools, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\..\..\..\AlmaCAM\Bin\AF_ImportTools.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Alma.NetKernel">
       <HintPath>C:\AlmaCAM\Bin\Alma.NetKernel.dll</HintPath>
@@ -107,6 +110,7 @@
     <Reference Include="Wpm.Implement.ComponentEditor, Version=2.1.0.43911, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\AlmaCAM\Bin\Wpm.Implement.ComponentEditor.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Wpm.Implement.Manager">
       <HintPath>C:\AlmaCAM\Bin\Wpm.Implement.Manager.dll</HintPath>
@@ -143,7 +147,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetPath)" "C:\AlmaCAM\Bin\$(SolutionName)"</PostBuildEvent>
+    <PostBuildEvent>copy "$(TargetPath)" "C:\AlmaCAM\Bin\AF_$(SolutionName).dll"
+copy "C:\AlmaCAM\Bin\$(SolutionName)"  "C:\AlmaCAM\Bin\AlmaCam_Clipper\DLL\SP3\AF_$(SolutionName).dll"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

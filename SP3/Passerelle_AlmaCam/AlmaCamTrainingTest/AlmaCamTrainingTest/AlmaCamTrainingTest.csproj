@@ -101,6 +101,7 @@
     <Reference Include="Actcut.ActcutModelManagerUI, Version=2.1.1.50249, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\AlmaCAM\Bin\Actcut.ActcutModelManagerUI.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Actcut.NestingManager">
       <HintPath>C:\AlmaCAM\Bin\Actcut.NestingManager.dll</HintPath>
@@ -117,6 +118,7 @@
     <Reference Include="AF_ImportTools, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\..\..\..\AlmaCAM\Bin\AF_ImportTools.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Alma.BaseUI, Version=2.1.1.50249, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
@@ -125,10 +127,12 @@
     <Reference Include="Alma.NetKernel, Version=2.1.1.50249, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\AlmaCAM\Bin\Alma.NetKernel.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Alma.UI, Version=2.1.1.50249, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\AlmaCAM\Bin\Alma.UI.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -227,11 +231,13 @@
     <ProjectReference Include="..\..\Clipper_DLL\AF_Clipper_Dll.csproj">
       <Project>{F2B68199-A16B-4B40-B4FD-718126F984AF}</Project>
       <Name>AF_Clipper_Dll</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetPath)" "C:\AlmaCAM\Bin\AF_Clipper.exe"</PostBuildEvent>
+    <PostBuildEvent>copy "$(TargetPath)" "C:\AlmaCAM\Bin\AF_Clipper.exe"
+copy "$(TargetPath)" "C:\AlmaCAM\Bin\AlmaCam_Clipper\DLL\SP3\AF_Clipper.exe"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

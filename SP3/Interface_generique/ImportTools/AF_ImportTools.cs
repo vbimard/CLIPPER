@@ -872,6 +872,24 @@ namespace AF_ImportTools
 
         }
 
+        public static List<IModel> GetDataBaseList()
+        {
+            try
+            {
+
+                List<IModel> lstmodel = new List<IModel>();
+                IModelsRepository mRepository = new ModelsRepository();
+                lstmodel = mRepository.ModelList.ToList<IModel>();
+
+
+                return lstmodel;
+            }
+
+            catch (Exception ie) { MessageBox.Show(ie.Message); return null; }
+
+        }
+
+
     }
 
 

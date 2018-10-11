@@ -378,9 +378,7 @@ namespace AlmaCamTrainingTest
 
         private void AfterClose_Click(object sender, EventArgs e)
         {
-            //IEntity TO_CUT_nesting;
-
-            //Clipper_Dll.Clipper_DoOnAction_AfterSendToWorkshop doonaction = new Clipper_DoOnAction_AfterSendToWorkshop();
+      
             AF_Clipper_Dll.Clipper_DoOnAction_After_Cutting_end doonaction = new Clipper_DoOnAction_After_Cutting_end();
 
              //string stage = "_CLOSED_NESTING";
@@ -398,15 +396,11 @@ namespace AlmaCamTrainingTest
 
             if (Entityselector.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                //foreach (IEntity nesting in Entityselector.SelectedEntity)
-                //{
-                    //doonaction.execute(_Context, nesting);
-                    ///doonaction.execute(_Context, nesting, false);
-                    ///
+             
                     doonaction.execute(Entityselector.SelectedEntity);
                 
 
-                //}
+              
             }
             
 

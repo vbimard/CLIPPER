@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AF_Clipper_Dll", "Clipper_D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmaCamTrainingTest", "AlmaCamTrainingTest\AlmaCamTrainingTest\AlmaCamTrainingTest.csproj", "{4FDEE9E7-0F2C-43F7-864D-0CA51E91768C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AF_ImportTools", "..\Interface_generique\ImportTools\AF_ImportTools.csproj", "{49768C4B-0F89-40E8-943E-2977EF65834F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AF_ImportTools", "..\..\..\GENERIQUE\AF_ImportTools\AF_ImportTools.csproj", "{49768C4B-0F89-40E8-943E-2977EF65834F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
