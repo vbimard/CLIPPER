@@ -1,0 +1,55 @@
+﻿/// log verbeux
+2 fichiers: un log standard et un log verbeux la case a cocher mode verbux editera le log verbeux 
+
+///remplacer plan #string par plan #int
+
+
+//remonter dt à partir des nested paerts--> bouton dans les nesting to cut par exemple
+
+//utilisation de log
+//log4net
+
+
+http://www.codeproject.com/Articles/140911/log4net-Tutorial
+//
+
+à faire:
+control sur les matiere a l'import des of
+control sur la presence de preparation dans les references'
+--> ecriture d'un fichier journal
+--> mettre l 'info de la machine suggérée par l'of--> mettre un message si pas de preparation
+a tester
+1idlnrout existe deja
+
+
+---->
+import stock:
+
+
+question : la geomatrie des toles neuves
+--> dont on les générer?
+--> recuperer les geometries des chutes est-ce possible?
+--> le champs "id_externe" doit etre renseigné
+
+
+
+les formats  existants et non obsoletes sont crées aaec le nomclip_suivi de 'l idee unique'
+les toles existantes et non obsoletes sont detectees et la quantité est mise a jour si clipper renvoie la tole dans le stock
+attention aucin control n'est fait pour le valeurs'
+un cast systématique est simplement fait sur les nouvelles données
+charger la prevu
+
+
+----> probleme sur le stock
+--> doit on definir la geométrie des toles.
+
+----> test a prevoir
+
+
+
+
+
+//à prevoir
+controler la presence de la matiere en regardant nuance*etat et epaisseur (pour le moment je me base sur une chaine normalisée "nuance*etat ep dim"->"20mv2*brut 5.00 mm"
+
+//

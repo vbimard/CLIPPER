@@ -1,0 +1,41 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2027
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AF_Import_ODBC_Clipper_AlmaCam", "Import_Odbc_AlmaCam\AF_Import_ODBC_Clipper_AlmaCam.csproj", "{AC690F2F-EF70-4A78-90C4-B5EAA55576CF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlmaCamTrainingTest", "ConsoleApp2\AlmaCamTrainingTest.csproj", "{379565D9-656B-4818-A681-1B22FE40B49E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AC690F2F-EF70-4A78-90C4-B5EAA55576CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC690F2F-EF70-4A78-90C4-B5EAA55576CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC690F2F-EF70-4A78-90C4-B5EAA55576CF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AC690F2F-EF70-4A78-90C4-B5EAA55576CF}.Debug|x86.Build.0 = Debug|Any CPU
+		{AC690F2F-EF70-4A78-90C4-B5EAA55576CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC690F2F-EF70-4A78-90C4-B5EAA55576CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC690F2F-EF70-4A78-90C4-B5EAA55576CF}.Release|x86.ActiveCfg = Release|Any CPU
+		{AC690F2F-EF70-4A78-90C4-B5EAA55576CF}.Release|x86.Build.0 = Release|Any CPU
+		{379565D9-656B-4818-A681-1B22FE40B49E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{379565D9-656B-4818-A681-1B22FE40B49E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{379565D9-656B-4818-A681-1B22FE40B49E}.Debug|x86.ActiveCfg = Debug|x86
+		{379565D9-656B-4818-A681-1B22FE40B49E}.Debug|x86.Build.0 = Debug|x86
+		{379565D9-656B-4818-A681-1B22FE40B49E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{379565D9-656B-4818-A681-1B22FE40B49E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{379565D9-656B-4818-A681-1B22FE40B49E}.Release|x86.ActiveCfg = Release|x86
+		{379565D9-656B-4818-A681-1B22FE40B49E}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E0ACFBEA-3375-4514-A75C-8FAD798BACE2}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,174 @@
+﻿//*sample
+HEADER;TL*304L*BRUT*5;3000;1500;5;304L*BRUT;1;6,36;Bystronic;C:\alma\Data\Laser\WorkDoc\2015-2_clipper-304l-brut-5-00_01.pdf;C:\alma\Data\Laser\Plac\2015-2_clipper-304l-brut-5-00.r01.emf;0;,00
+DETAIL;9482;2589;100;30;30;0,021;0,03551;0
+CHUTE;3000;1500;1;0,97944;0;C:\alma\Data\Chutes\2015-2_Clipper-304L-BRUT-5-0001_01.dpr;C:\alma\Data\Chutes\2015-2_Clipper-304L-BRUT-5-0001_01.dpr.emf;173,87551995
+
+
+
+//ecriture des header                   
+                                /* CodeMat = aNest.Format.Identifier
+	                            Longueur = aNest.Format.DimX
+	                            Largeur = aNest.Format.DimY
+	                            Epaisseur = MonAgi.Material.thickness
+	                            Nuance = GetMaterialAlma(MonAgi.Material.Quality)
+	                            'EtatMat = aNest.Format.GetFieldValue("ETATMAT")
+	                            'Nuance = Nuance & "§" & EtatMat
+	                            NbToles = aNest.MULTIPLICITY
+	                            TpsTh = aNest.NestInfos.GetFieldValue("TOTALTIME")
+	                            'le temps de preparation est
+	                            TpsPrepaMachine=aNest.NestInfos.GetFieldValue("LOADTIME_INIT") + aNest.NestInfos.GetFieldValue("LOADTIME_END")*NbToles  ' converti en minutes
+	                            TpsTh = Format(TpsTh,"#.00")
+	                            Machine = MonAgi.Material.activity
+	                            WSDocPath = FichePath + Replace(aNest.Name,".r","_") + ExtFiche
+	                            NestPictPath = PlacPath + aNest.Name + ".emf"   'pour récupérer l'image
+                                matLot = aNest.Format.GetFieldValue("NUMMATLOT")
+                                EstimationStr=aNest.NestInfos.GetFieldValue("EstimationString")
+                                'TpsPrepaMachine=MaRsc.TechnoList.GetTheActiveTechno.GetParameter("PAR_TPSCHARG").GetValue
+
+	                            ListeChp(0) = IdLigHeader
+	                            ListeChp(1) = CodeMat
+	                            ListeChp(2) = CStr(Longueur)
+	                            ListeChp(3) = CStr(Largeur)
+	                            ListeChp(4) = CStr(Epaisseur)
+	                            ListeChp(5) = Nuance
+	                            ListeChp(6) = CStr(NbToles)
+	                            ListeChp(7) = CStr(TpsTh)
+	                            ListeChp(8) = Machine
+	                            ListeChp(9) = WSDocPath--->vide
+	                            ListeChp(10) = NestPictPath
+                                ListeChp(11) = matLot
+                                 
+                                 */
+
+/*ecriture des pieces
+                                     ListeChp(0) = IdLigDetail
+					                ListeChp(1) = IdLgGamme
+					                ListeChp(2) = IdLgNomenclature
+					                ListeChp(3) = CStr(Nbpieces)
+					                ListeChp(4) = CStr(LongPiece)
+					                ListeChp(5) = CStr(LargPiece)
+					                ListeChp(6) = CStr(CoefUnit)
+					                SomCoef = SomCoef + CoefUnit
+					                ListeChp(7) = CStr(PoidsUnit)
+					                'MsgBox("TpsPiece: " & TpsPiece & "somratio : " & SomRatio & "  ratiotpsth : " & RatioTpsTh)
+					                'MsgBox("CptPart : " & CptPart & "  NbFullPartsNest : " & NbFullPartsNest)
+					                'If CptPart = NbFullPartsNest Then
+						                'RatioTpsTh = 1 - SomRatio
+						                'RatioTpsTh = Format(RatioTpsTh,"0.000")
+					                'End If
+					                'SomRatio = SomRatio + RatioTpsTh
+					                RatioTpsTh = TpsPiece * Nbpieces / TotTpsPiecenew
+					                RatioTpsTh = Format(RatioTpsTh,DigitNumber)
+					                ListeChp(8) = CStr(RatioTpsTh)                                     
+                                    */
+
+
+
+								  /*ecriture des chutes
+                     'If aNestRes.NestingKey = CurNestKey Then
+	                       'If aNest.Key = CurNestKey Then
+		                    LongChute = GetLongFromFile(aChute.FileName)
+		                    LargChute = GetLargFromFile(aChute.FileName)
+		                    SurfChute = getAreaFromFile(aChute.FileName)
+		                    NbChutes = aChute.quantity
+		                    'CoefChute = getAreaFromFile(aChute.FileName) / (aNest.Format.DimX * aNest.Format.DimY) * aChute.Quantity
+		                    'CoefChute = (aNest.totalWaste - aNest.frontWaste) / 100 * aChute.Quantity	'ok si on ne garde pas le squelette
+		                    If newClipFeedBack=True Then
+                            'raito de chute sur surface initiale des toles
+                            CoefChute=dSurfaceChute/dSurfaceTole  'pas de recuperation du squelette si recup alors a discuter
+                            CoefChute = Format(CoefChute,DigitNumber)
+		                    Else
+		                    CoefChute = 1 - SomCoef
+		                    CoefChute = Format(CoefChute,DigitNumber)
+		                    End If
+
+		                    Rectangulaire = 0
+		                    If LongChute * LargChute = SurfChute Then
+			                    Rectangulaire = 1
+		                    End If
+		                    ChutePath = aChute.FileName
+
+		                    ListeChp(0) = IdLigChute
+		                    ListeChp(1) = CStr(LongChute)
+		                    ListeChp(2) = CStr(LargChute)
+		                    ListeChp(3) = CStr(NbChutes)
+		                    ListeChp(4) = CStr(CoefChute)
+		                    ListeChp(5) = CStr(Rectangulaire)
+		                    ListeChp(6) = ChutePath
+		                    ListeChp(7) = ChutePath + ".emf"
+		                    ListeChp(8) = Densite*Epaisseur*SurfChute/1000000
+
+		                    'on écrit la ligne créée dans le fichier d'export
+		                    MaLigne = ""
+		                    For i = 0 To 8
+			                    MaLigne = MaLigne + ListeChp(i) + ";"
+		                    Next
+		                    MaLigne = Mid(MaLigne,1,Len(MaLigne)-1)
+		                    Print #257,MaLigne
+                    */
+
+
+
+
+					/*
+                    current_clipper_nestinfos.ContextLocal = context;
+                    current_clipper_nestinfos.GetInfos(NestingName, stage);
+                    current_clipper_nestinfos.ComputeInfos();
+                    //ecriture des entetes de nesting
+                    string Header_Line = "HEADER" + Separator +
+                    current_clipper_nestinfos.Sheet_Name + Separator +
+                    current_clipper_nestinfos.Sheet_Length + Separator +
+                    current_clipper_nestinfos.Sheet_Width + Separator +
+                    current_clipper_nestinfos.Sheet_Thickness + Separator +
+                        //nestinfos.Sheet_MaterialName + Separator +
+                    current_clipper_nestinfos.Sheet_Grade + Separator +
+                    String.Format(Clipper_Param.get_string_format_double(), current_clipper_nestinfos.Nesting_TotalTime + (current_clipper_nestinfos.Sheet_loadingTimeInit + current_clipper_nestinfos.Sheet_loadingTimeEnd)) + Separator +
+                    current_clipper_nestinfos.Nesting_CentreFrais_Machine + Separator +
+                    "" + Separator + //on ignore le pdf
+                    current_clipper_nestinfos.Sheet_EmfFile + Separator +
+                    current_clipper_nestinfos.Sheet_NumMatLot + Separator +
+                    String.Format(Clipper_Param.get_string_format_double(), (current_clipper_nestinfos.Sheet_loadingTimeInit + current_clipper_nestinfos.Sheet_loadingTimeEnd));
+
+
+                    Export_Gpao_File.WriteLine(Header_Line);
+
+                    //ecriture des details pieces
+                    foreach (Clipper_NestedPartInfos clipperpart in current_clipper_nestinfos.Clipper_Nested_Part_Infos_List)
+                    {
+                        string detail_Line =
+                            "DETAIL" + Separator +
+                            clipperpart.Idlnrout + Separator +
+                            clipperpart.Idlnbom + Separator +
+                            clipperpart.Height + Separator +
+                            clipperpart.Width + Separator +
+                            String.Format(Clipper_Param.get_string_format_double(), clipperpart.Ratio_Consommation) + Separator +
+                            String.Format(Clipper_Param.get_string_format_double(), clipperpart.Part_Balanced_Weight * 0.001) + Separator +
+                            String.Format(Clipper_Param.get_string_format_double(), clipperpart.Part_Time * clipperpart.Nested_Quantity / current_clipper_nestinfos.Parts_Total_Time);//current_clipper_nestinfos.Nesting_TotalTime);
+
+                        Export_Gpao_File.WriteLine(detail_Line);
+
+                    }
+
+
+                    //ecriture  des chutes
+                    foreach (Clipper_Offcut_Infos clipperoffcut in current_clipper_nestinfos.Clipper_Nested_Offcut_Infos_List)
+                    {
+                        string offcut_Line =
+                            "CHUTE" + Separator +
+                            clipperoffcut.Width + Separator +
+                            clipperoffcut.Height + Separator +
+                            clipperoffcut.Offcut_Quantity + Separator +
+                            String.Format(Clipper_Param.get_string_format_double(), clipperoffcut.Offcut_Ratio) + Separator +
+                            clipperoffcut.Rectangular + Separator +
+                            //clipperoffcut.Rectangular = true ? "1" : "0" + Separator +
+                            clipperoffcut.EmfFile + Separator +
+                            String.Format(Clipper_Param.get_string_format_double(), clipperoffcut.Weight * 0.001);
+                        Export_Gpao_File.WriteLine(offcut_Line);
+
+                    }
+
+
+
+
+
+                    */

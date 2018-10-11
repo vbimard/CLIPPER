@@ -1,0 +1,59 @@
+﻿---creer un tube EN LIGNE DE COMMANDE
+Attentiojn il y a une astuce ici 
+//ATTENTION recuperation des infos de l'implemented section
+   barreEntity.SetFieldValue("_SECTION", sectionEntity.GetImplementEntity("_SECTION").Id);
+@+ et merci
+
+public void create_SECTION_CIRCLE(IContext contextlocal,string name, double diam, double ep, double lng, double cost, string code_article)
+            {
+
+
+            //creation de la section (type...)
+            IEntity sectionEntity;
+            string key = Guid.NewGuid().ToString();
+            sectionEntity = contextlocal.EntityManager.CreateEntity("_SECTION_CIRCLE");
+            IEntity sectionQuality = contextlocal.EntityManager.CreateEntity("_SECTION_QUALITY");
+            sectionEntity.GetImplementEntity("_SECTION").SetFieldValue("_KEY", key);
+            sectionEntity.GetImplementEntity("_SECTION").SetFieldValue("_NAME", name);
+            sectionEntity.GetImplementEntity("_SECTION").SetFieldValue("_STANDARD", true);
+            sectionEntity.SetFieldValue("_P_D", diam);
+            sectionEntity.SetFieldValue("_P_T", ep);           
+            sectionEntity.Complete = true;
+            sectionEntity.Save();
+            //creation de la qualité
+            
+            sectionQuality.SetFieldValue("_SECTION", sectionEntity.Id32);
+            sectionQuality.SetFieldValue("_QUALITY", NUANCE.Id32);
+            sectionQuality.SetFieldValue("_BUY_COST", cost);
+            
+            sectionQuality.Save();
+
+            //creation DE LA BARRE
+            IEntity barreEntity;
+            string keybar = Guid.NewGuid().ToString();
+            barreEntity = contextlocal.EntityManager.CreateEntity("_BARTUBE");
+            barreEntity.SetFieldValue("_REFERENCE", code_article);
+            barreEntity.SetFieldValue("_QUALITY", NUANCE.Id32);
+            barreEntity.SetFieldValue("_LENGTH", lng);
+            //ATTENTION recuperation des infos de l'implemented section
+            barreEntity.SetFieldValue("_SECTION", sectionEntity.GetImplementEntity("_SECTION").Id); //sectionEntity.GetImplementEntity("_SECTION").Id
+            barreEntity.Save();
+           
+
+
+        }
+
+
+
+liste des codes recupérés
+
+		Famille	ID	WHERE	COFA
+Tube Rond		5			ARTICLEM.CHUTE<>'O' AND FAMILLE.DIMENSIONS=	TROND 
+Rond (plein)	4			ARTICLEM.CHUTE<>'O' AND FAMILLE.DIMENSIONS=4	ROND  
+Tube Recta 		17			ARTICLEM.CHUTE<>'O' AND FAMILLE.DIMENSIONS=17	TUREC
+Flat			3			ARTICLEM.CHUTE<>'O' AND FAMILLE.COFA='FLAT' AND FAMILLE.DIMENSIONS=3	FLAT 
+IPN				6			ARTICLEM.CHUTE<>'O' AND FAMILLE.COFA='IPN' AND FAMILLE.DIMENSIONS=6	IPN
+L				6			ARTICLEM.CHUTE<>'O' AND FAMILLE.COFA='L' AND FAMILLE.DIMENSIONS=6	L
+C				6			ARTICLEM.CHUTE<>'O' AND FAMILLE.COFA='C' AND FAMILLE.DIMENSIONS=6	C
+profile spéciaux	6		ARTICLEM.CHUTE<>'O' AND  FAMILLE.DIMENSIONS=6	
+Famille vis	7	7			VIS CHC id=7 M

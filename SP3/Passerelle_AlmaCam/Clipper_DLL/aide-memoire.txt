@@ -1,0 +1,567 @@
+﻿
+
+
+
+
+IEntitySelector referenceSelector = new EntitySelector();
+      
+
+            IEntityType entityType = _Context.Kernel.GetEntityType("_TO_PRODUCE_REFERENCE");
+            IExtendedEntityType extendedEntityType = entityType.ExtendedEntityType;
+
+           // On set 2 conditions avec lesquelles on va faire une requete:
+            IConditionType IsSansDT = _Context.Kernel.ConditionTypeManager.CreateSimpleConditionType(extendedEntityType.GetExtendedField(@"_TO_PRODUCE_REFERENCE\SANS_DT"), ConditionOperator.Equal,
+            _Context.Kernel.ConditionTypeManager.CreateConditionTypeConstantParameter("SANS_DT",true));
+            //
+            IQueryType queryType = new QueryType(_Context.Kernel, "myQuery", entityType);
+            queryType.SetFilter(IsSansDT);
+            IExtendedEntityList resultList = _Context.EntityManager.GetExtendedEntityList(queryType);
+            resultList.Fill(false);
+            referenceSelector.Init(_Context,resultList );// extended_references_sans_dt
+          
+            if (referenceSelector.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                foreach (IEntity refEntity in referenceSelector.SelectedEntity)
+                {
+                    MessageBox.Show(refEntity.Id32.ToString());
+                }
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/////////////////////////////////////////////////////////////////
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+
+using Alma.BaseUI.Utils;
+
+namespace DemoProgress
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            MyFunctionExeParam param = new MyFunctionExeParam();
+            param.NbLoop = 1000;
+            ProgressWorker<MyFunctionExeParam> pw = new ProgressWorker<MyFunctionExeParam>(param, MyFunctionExe);
+            if (param.HasError)
+            {
+                MessageBox.Show(param.ErrorMessage);
+            }
+        }
+
+        private class MyFunctionExeParam
+        {
+            public bool HasError = false;
+            public string ErrorMessage = "";
+            public long NbLoop;
+        }
+        private void MyFunctionExe(MyFunctionExeParam param, ProgressWorker<MyFunctionExeParam> progressWorker)
+        {
+            param.ErrorMessage = "";
+            progressWorker.Message = "toto";
+
+            for (long i = 1; i < param.NbLoop; i++)
+            {
+                progressWorker.Message = string.Format("I = {0}/{1}", i.ToString(), param.NbLoop);
+                System.Threading.Thread.Sleep(1);
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+ //////////////////////////
+ valeurs nulle
+int i = (int)(x ?? 0)
+ 
+ 
+ ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ ///list des champs d'un entité
+ //kernel.fieldlist(ientity entity)
+
+
+ ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+ ///extended entity
+ using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.IO;
+
+//using_Alma
+using Wpm.Implement.Manager;
+using Wpm.Implement.Processor;
+using Wpm.Implement.ComponentEditor;
+using Wpm.Schema.Kernel;
+using Alma.NetKernel;
+using Actcut.ActcutModelManager;
+using Actcut.NestingManager; //nesting
+
+    public class Export
+    {
+
+       public  void exportmypart(IContext context, string mpath, IEnumerable<IEntity> entitylistToExport)
+        {
+           IExtendedEntityList extendentLst = context.EntityManager.GetExtendedEntityList("_TO_PRODUCE_REFERENCE", entitylistToExport);
+           extendentLst.Fill(false);  //false si pas de blob
+
+            StreamWriter sw = File.CreateText(@"c:\temp\alma\_AlmacamList.txt");
+
+            //foreach (Entity e in entitylistToExport) // ce procede est tres consommateur en temps
+            foreach ( IExtendedEntity   extended_e in extendentLst.AsExtendedEntityList)
+
+            { //System.Windows.Forms.MessageBox.Show("Vince result: "+ e.DefaultValue); 
+                //IEntity referenceentity = e.GetFieldValueAsEntity("_REFERENCE");  // ce procede est tres consommateur en temps
+                //IEntity matentity = e.GetFieldValueAsEntity("_MATERIAL");// il estpreferable de passer par un IextendedEntity
+
+                //string line = string.Format("{0} - {1}", e.DefaultValue, e.GetFieldValueAsString("_QUANTITY"), matentity.GetFieldValueAsString("_Name"));
+
+                string line = string.Format("{0} - {1} - {2}", extended_e.GetFieldValue(@"_TO_PRODUCE_REFERENCE\_NAME"),
+                extended_e.GetFieldValue(@"_TO_PRODUCE_REFERENCE\_QUANTITY"),
+                extended_e.GetFieldValue(@"_TO_PRODUCE_REFERENCE\_REFERENCE\_MATERIAL\_NAME"));
+                  
+                //string line = extended_e.GetFieldValue(@"_TO_PRODUCE_REFERENCE\_NAME").ToString();
+
+
+
+
+
+                sw.WriteLine(line);
+            
+            }
+            sw.Close();
+        }
+    }
+
+
+
+    /// <summary>
+    /// /////////////////////////////////////////////
+    /// </summary>
+
+
+    
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////
+  //import_Stock
+
+
+
+  ////ajout stock
+
+
+  IEntity new_sheet = contextlocal.EntityManager.CreateEntity("_SHEET");
+                        new_sheet.SetFieldValue("_REFERENCE", "TUTU");
+                        new_sheet.Save();
+
+
+                        IEntity stock = contextlocal.EntityManager.CreateEntity("_STOCK");
+                        stock.SetFieldValue("_NAME", "toto");
+                        stock.SetFieldValue("_SHEET", new_sheet);
+                        stock.Save();
+
+
+  ////
+            List<object> lo = new List<object>();
+            //ImportTools.ImportTools csv = new ImportTools.ImportTools();
+            //lo = csv.ImportCsvFileTest();
+            ///IEntity stock = _Context.EntityManager.CreateEntity("_STOCK");
+            IEntity sheet = _Context.EntityManager.CreateEntity("_SHEET");
+
+            //QUANTITY
+            //int quantity =Convert.ToInt32( lo[csv.getObject("QUANTITY")]);
+            //int quantity2 = Convert.ToInt32(lo[csv.getObject("PART_INITIAL_QUANTITY")]);
+            sheet.SetFieldValue("_REFERENCE", "test");
+            /*1 --> tole neuve
+              2 --> chutes
+            */
+            sheet.SetFieldValue("_TYPE", 1);
+            sheet.SetFieldValue("_WIDTH", 3000);
+            sheet.SetFieldValue("_LENGTH", 1500);
+
+
+
+            //recuperation des  des matieres
+            IEntityList qualitylevel_list = _Context.EntityManager.GetEntityList("_MATERIAL", "_NAME", Wpm.Schema.Kernel.ConditionOperator.Equal, "S235 JR 1 mm");
+            qualitylevel_list.Fill(false);
+            IEntity matiere = qualitylevel_list.FirstOrDefault();
+            sheet.SetFieldValue("_MATERIAL", matiere);
+
+
+
+
+            //STOCK ASSOCIE
+            IEntity stock = _Context.EntityManager.CreateEntity("_STOCK");
+            stock.SetFieldValue("_NAME", "ma tole");
+            stock.SetFieldValue("_QUANTITY", 10);
+            stock.SetFieldValue("_SHEET", sheet);
+
+            //csv.getObject("QUANTITY");
+            // parttoproduce.SetFieldValue("_REFERENCE", lo[csv.getObject("NAME")]);
+            //parttoproduce.SetFieldValue("_MATERIAL", lo[csv.getObject("QUANTITY")]);
+
+            //parttoproduce.SetFieldValue("_REFERENCE", "NOUVEAUNOM");
+            sheet.Save();
+            sheet.Save();
+  
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  
+  
+  
+  //recuperation de la liste des reference, matiere, machine//
+             IEntityList Machine_List = contextlocal.EntityManager.GetEntityList("_CUT_MACHINE_TYPE");
+             Machine_List.Fill(false);
+             //
+             IEntityList Material_list = contextlocal.EntityManager.GetEntityList("_MATERIAL");
+             Material_list.Fill(false); // false --> no blob //true with blob
+             //
+             IEntityList List_CentreFrais = contextlocal.EntityManager.GetEntityList("_CENTRE_FRAIS");
+
+             //liste des reference
+             //IEntityList parts_to_produce = contextlocal.EntityManager.GetEntityList("_MACHINABLE_PART", "_NAME", ConditionOperator.Equal, "EssaiClip1");
+             IEntityList preparations = contextlocal.EntityManager.GetEntityList("_MACHINABLE_PART");
+             preparations.Fill(false);
+  
+  ///////////////////////////////////////////////
+  
+  
+  
+  
+  
+  
+  
+  //import of sur contexte uniquepment
+  public void Import(IContext contextlocal){
+
+         //recuperation des path
+         CsvImportPath = Clipper_Param.GetPath("IMPORT_CDA");
+         //ImportTools.Validator
+         //Data_Model.setFieldDictionnary(Clipper_Param.GetPath("MODEL_CA"));
+
+         try
+         {
+
+             //recuperation de la liste des reference, matiere, machine//
+             //verfier la presence des champs clipper : pour le moment  IDLNROUT suffit
+             bool testChamp = contextlocal.Kernel.GetEntityType("_REFERENCE").FieldList.ContainsKey("IDLNROUT");
+             //reciuperation de la liste des machine
+             IEntityList Machine_List = contextlocal.EntityManager.GetEntityList("_CUT_MACHINE_TYPE");
+             Machine_List.Fill(false);
+             //
+             IEntityList Material_list = contextlocal.EntityManager.GetEntityList("_MATERIAL");
+             Material_list.Fill(false); // false --> no blob //true with blob
+             //
+             IEntityList List_CentreFrais = contextlocal.EntityManager.GetEntityList("_CENTRE_FRAIS");
+
+             //liste des reference
+             IEntityList parts_to_produce = contextlocal.EntityManager.GetEntityList("_MACHINABLE_PART", "_NAME", ConditionOperator.Equal, "EssaiClip1");
+             parts_to_produce.Fill(false);
+
+
+             if (parts_to_produce.Count() == 1)
+             {
+                 //on a l'entite
+                 //on pointe
+                 IEntity part_to_produce = parts_to_produce.FirstOrDefault();
+
+             }
+             
+
+
+             //ouverture du fichier csv
+             using (StreamReader csvfile = new StreamReader(CsvImportPath))
+             {
+                 List<object> NewImport = new List<object>();
+                 Data_Model.setFieldDictionnary(Clipper_Param.GetModelCA());
+             
+                 int ligneNumber = 0;
+                 //lecture à la ligne
+
+                 while (csvfile.ReadLine() != null)
+                 {
+                     ligneNumber++;
+                     NewImport = Data_Model.ReadCsvLine(csvfile.ReadLine());
+
+                     // ecriture des valeurs//
+                     //verification du dpr (si il es present) sinon generer une erreur en fin d'import.
+                     //IEntityList preparationList = contextlocal.EntityManager.GetEntityList("_PREPARATION", "_REFERENCE", ConditionOperator.Equal, Part.Id);
+                     //preparationList.Fill(false);
+                     IEntity parttoproduce = contextlocal.EntityManager.CreateEntity("_TO_PRODUCE_REFERENCE");
+
+                     //parttoproduce.SetFieldValue("_NAME", "VincePart" + i);
+                     parttoproduce.SetFieldValue("_QUANTITY", 100);
+                     parttoproduce.SetFieldValue("_REFERENCE", "NOUVEAUNOM");
+                     parttoproduce.Save();
+
+                     NewImport.Clear();
+                 }
+
+                 ;
+             }
+
+
+
+         }
+         catch (Exception e) { System.Diagnostics.Debug.Print (e.Message); }
+}/////////////////////////////////////////////////////
+
+  
+  //
+             //definition des conditions
+             /*
+             string field2 = @"_TO_PRODUCE_REFERENCE\_QUOTE_REFERENCE";
+             string Condition2 = "002";
+             IConditionType conditionrtype2 = _Context.Kernel.ConditionTypeManager.CreateSimpleConditionType(extendedentitytype.GetExtendedField(field2), 
+                 ConditionOperator.Equal,
+                 _Context.Kernel.ConditionTypeManager.CreateConditionTypeConstantParameter("C2", Condition2));
+
+             */
+             //calcul
+             /*
+             IQueryType querytype = new QueryType(_Context.Kernel, "", entitytype);
+             IConditionType conditionType = _Context.Kernel.ConditionTypeManager.CreateCompositeConditionType(LogicOperator.And, conditionrtype1, conditionrtype2);
+             querytype.SetFilter(conditionType);
+             IExtendedEntityList l = _Context.EntityManager.GetExtendedEntityList(entitytype);
+             l.Fill(false);
+
+             */
+             //IEntityList el = contextlocal.EntityManager.CreateEntity()
+
+///////////////////////////////////////
+progressbar
+using System;
+    using System.Drawing;
+    using System.ComponentModel;
+    using System.Windows.Forms;
+
+    /// <summary>
+    ///    Summary description for Win32Form2.
+    /// </summary>
+    public class Win32Form2 : System.Windows.Forms.Form {
+
+        /// <summary>
+        ///    Required by the Win Forms designer
+        /// </summary>
+        private System.ComponentModel.Container components;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.ProgressBar progressBar1;
+
+        public Win32Form2() {
+            // Required for Win Form Designer support
+            InitializeComponent();
+        }
+
+        /// <summary>
+        ///    The main entry point for the application.
+        /// </summary>
+        public static void Main(string[] args) {
+            Application.Run(new Win32Form2());
+        }
+
+        /// <summary>
+        ///    Required method for Designer support - do not modify
+        ///    the contents of this method with an editor
+        /// </summary>
+        private void InitializeComponent() {
+            this.components = new System.ComponentModel.Container();
+            this.label1 = new System.Windows.Forms.Label();
+            this.progressBar1 = new System.Windows.Forms.ProgressBar();
+            this.button1 = new System.Windows.Forms.Button();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            
+            //@design this.TrayHeight = 0;
+            //@design this.TrayLargeIcon = false;
+            //@design this.TrayAutoArrange = true;
+            label1.Location = new System.Drawing.Point(32, 40);
+            label1.Text = "Progress Value";
+            label1.Size = new System.Drawing.Size(88, 24);
+            label1.TabIndex = 2;
+            
+            progressBar1.Maximum = 10;
+            progressBar1.Location = new System.Drawing.Point(8, 312);
+            progressBar1.Minimum = 0;
+            progressBar1.TabIndex = 0;
+            progressBar1.Value = 0;
+    
+            //We have calculated the excat size which will result in only 20 boxes to be drawn
+            
+            progressBar1.Size = new System.Drawing.Size(520, 40);
+            progressBar1.Step = 1;
+            
+            button1.Location = new System.Drawing.Point(152, 168);
+            button1.Size = new System.Drawing.Size(144, 48);
+            button1.TabIndex = 1;
+            button1.Text = "button1";
+            button1.Click += new System.EventHandler(button1_Click);
+            
+            textBox1.Location = new System.Drawing.Point(136, 40);
+            textBox1.Text = "0";
+            textBox1.TabIndex = 3;
+            textBox1.Size = new System.Drawing.Size(184, 20);
+            this.Text = "Win32Form2";
+            this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
+            this.ClientSize = new System.Drawing.Size(616, 393);
+            this.Click += new System.EventHandler(Win32Form2_Click);
+            
+            this.Controls.Add(textBox1);
+            this.Controls.Add(label1);
+            this.Controls.Add(button1);
+            this.Controls.Add(progressBar1);
+        }
+
+        protected void button1_Click(object sender, System.EventArgs e) {
+        
+            //this checking is automatically done as stated in the Ref Documentation 
+            //but it does not work , BUGssssss 
+            //so we have to do it shhhhh .... 
+            if (progressBar1.Value == progressBar1.Maximum){
+                progressBar1.Value =  progressBar1.Minimum;
+            }
+            progressBar1.PerformStep();
+            textBox1.Text=progressBar1.Value.ToString() ; // Displays the values of progressbar in textbox
+    
+        }
+        protected void Win32Form2_Click(object sender, System.EventArgs e) {
+        }
+    }
+             
+			 //////////////////////////////////////////////////////////////////
+			 FILE
+			 /////
+			 
+            //StreamReader rw = new StreamReader(@"D:\AlmaData\DEV\2015\Clipper_AlmaCam\SampleFiles\Data\Clipper\ImportDM\carspec.csv");
+            //char[] chars = { '\u00A7' };
+            string lineFromTxtFile;
+            var fs = new FileStream(@"D:\AlmaData\DEV\2015\Clipper_AlmaCam\SampleFiles\Data\Clipper\ImportDM\carspec.csv", FileMode.Open, FileAccess.Read,
+                                      FileShare.ReadWrite | FileShare.Delete);
+
+
+           // String content = new StreamReader(fs, Encoding.UTF8).ReadToEnd();
+            //String content = new StreamReader(fs, Encoding.UTF8).ReadToEnd();
+            String content = new StreamReader(fs, Encoding.Default).ReadToEnd();
+            string init = null;
+           init= System.Text.RegularExpressions.Regex.Replace(content, "\u00A7", "\u002A");
+            //content.Replace('\u00A7', '\u002A');
+            File.WriteAllText(@"D:\AlmaData\DEV\2015\Clipper_AlmaCam\SampleFiles\Data\Clipper\ImportDM\carspec2.csv", content);
+            // File.WriteAllText(@"D:\AlmaData\DEV\2015\Clipper_AlmaCam\SampleFiles\Data\Clipper\ImportDM\carspec2.csv", content,Encoding.UTF8);
+            //while (rw.Peek() > 0) { 
+            //string strng = new String(chars);
+            //System.Text.RegularExpressions.Regex.Replace(rw.ReadLine(),"\U00A7","*");
+              // lineFromTxtFile =rw.ReadLine().Replace('\u00A7','*')+'\r';
+
+
+
+
+
+
+
+			  case "_REFERENCE":
+                                     //rien pour le moment
+                                     string referenceName=null;
+                                     //attention on part d' un .dpr.emf
+                                     referenceName=Path.GetFileNameWithoutExtension(field.Value.ToString());
+                                     IEntityList references = contextlocal.EntityManager.GetEntityList("_REFERENCE", "_NAME", ConditionOperator.Equal, referenceName.Substring(0,referenceName.Length-4));
+                                     references.Fill(false);
+
+                                     if (references.Count() > 0)
+                                     {
+                                         //--> a prevoir on verifie le matiere clipper et la matiere de la reference
+                                         // si elle est différente alors on ne fait rien et in log un message
+                                         
+                                         foreach (IEntity reference in references){
+
+                                             IEntity part_reference = reference.GetFieldValueAsEntity("_Part");
+                                             PartInfo part_infos = new PartInfo();
+                                            // pi.IsPartDefault_Preparation(contextlocal,part_reference,)
+                                             
+                                         }
+
+                                         //---> a prevoir on verifie la preparation
+                                         //Dans part import tools part infos
+                                         //IsPartDefault_Preparation(IContext contextlocal, IEntity Part,IEntity machine)
+
+                                         // si elle est différente alors on ne fait rien et in log un message
+                                         //verification du dpr (si il es present) sinon generer une erreur en fin d'import.
+                                         //IEntityList preparationList = contextlocal.EntityManager.GetEntityList("_PREPARATION", "_REFERENCE", ConditionOperator.Equal, Part.Id);
+                                         //preparationList.Fill(false)
+                                         
+                                         //pour le moment premier de la liste ou rien
+                                         reference_to_produce.SetFieldValue(field.Key, references.FirstOrDefault());
+                                     }
+                                     
+                                     break;
+
