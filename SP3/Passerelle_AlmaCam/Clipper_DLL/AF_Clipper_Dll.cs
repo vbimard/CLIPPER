@@ -1621,7 +1621,7 @@ namespace AF_Clipper_Dll
 
             catch (Exception ie)
             {
-                Alma_Log.Write_Log(MethodBase.GetCurrentMethod().Name + ": erreur ");
+                Alma_Log.Write_Log(MethodBase.GetCurrentMethod().Name + ": erreur : "+ie.Message);
                // MessageBox.Show(ie.Message);
                 return false;
             }
