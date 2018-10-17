@@ -35,8 +35,6 @@
             this.button9 = new System.Windows.Forms.Button();
             this.AfterClose = new System.Windows.Forms.Button();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.quitToolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
             this.importToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cAToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.stockToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -47,6 +45,8 @@
             this.retourPlacementToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.stockToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.purgerLeStockToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.quitToolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
             this.fichierToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.DoOnAction_TO_CUT_NESTING = new System.Windows.Forms.Button();
@@ -122,6 +122,7 @@
             this.AfterClose.Text = "Retour Placement Clos (DoOnAction_After_Cutting_end)";
             this.AfterClose.UseVisualStyleBackColor = false;
             this.AfterClose.UseWaitCursor = true;
+            this.AfterClose.Visible = false;
             this.AfterClose.Click += new System.EventHandler(this.AfterClose_Click);
             // 
             // menuStrip1
@@ -139,21 +140,6 @@
             this.menuStrip1.TabIndex = 12;
             this.menuStrip1.Text = "menuStrip1";
             this.menuStrip1.UseWaitCursor = true;
-            // 
-            // fileToolStripMenuItem
-            // 
-            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.quitToolStripMenuItem2});
-            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
-            this.fileToolStripMenuItem.Text = "File";
-            // 
-            // quitToolStripMenuItem2
-            // 
-            this.quitToolStripMenuItem2.Name = "quitToolStripMenuItem2";
-            this.quitToolStripMenuItem2.Size = new System.Drawing.Size(97, 22);
-            this.quitToolStripMenuItem2.Text = "Quit";
-            this.quitToolStripMenuItem2.Click += new System.EventHandler(this.quitToolStripMenuItem2_Click);
             // 
             // importToolStripMenuItem
             // 
@@ -235,6 +221,21 @@
             this.purgerLeStockToolStripMenuItem.Text = "Purger le Stock";
             this.purgerLeStockToolStripMenuItem.Click += new System.EventHandler(this.purgerLeStockToolStripMenuItem_Click);
             // 
+            // fileToolStripMenuItem
+            // 
+            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.quitToolStripMenuItem2});
+            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            this.fileToolStripMenuItem.Text = "File";
+            // 
+            // quitToolStripMenuItem2
+            // 
+            this.quitToolStripMenuItem2.Name = "quitToolStripMenuItem2";
+            this.quitToolStripMenuItem2.Size = new System.Drawing.Size(97, 22);
+            this.quitToolStripMenuItem2.Text = "Quit";
+            this.quitToolStripMenuItem2.Click += new System.EventHandler(this.quitToolStripMenuItem2_Click);
+            // 
             // fichierToolStripMenuItem
             // 
             this.fichierToolStripMenuItem.Name = "fichierToolStripMenuItem";
@@ -268,7 +269,6 @@
             this.DoOnAction_TO_CUT_NESTING.Text = "Retour Placement Clos (DoOnAction_TO_CUT_NESTING)";
             this.DoOnAction_TO_CUT_NESTING.UseVisualStyleBackColor = false;
             this.DoOnAction_TO_CUT_NESTING.UseWaitCursor = true;
-            this.DoOnAction_TO_CUT_NESTING.Visible = false;
             this.DoOnAction_TO_CUT_NESTING.Click += new System.EventHandler(this.AfterSendToWorkshop_Click);
             // 
             // groupBox3
@@ -317,6 +317,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoValidate = System.Windows.Forms.AutoValidate.EnableAllowFocusChange;
             this.BackColor = System.Drawing.SystemColors.ButtonHighlight;
             this.BackgroundImage = global::AlmaCamTrainingTest.Properties.Resources.FONDExport;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
@@ -330,7 +331,7 @@
             this.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Location = new System.Drawing.Point(1200, 390);
+            this.Location = new System.Drawing.Point(1200, 400);
             this.MainMenuStrip = this.menuStrip1;
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.MaximizeBox = false;
@@ -338,7 +339,6 @@
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "AlmaCam_Clipper";
-            this.TopMost = true;
             this.UseWaitCursor = true;
             this.Load += new System.EventHandler(this.Form1_Load);
             this.menuStrip1.ResumeLayout(false);

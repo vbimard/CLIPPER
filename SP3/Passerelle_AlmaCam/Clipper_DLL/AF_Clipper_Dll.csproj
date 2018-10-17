@@ -64,6 +64,10 @@
       <HintPath>C:\AlmaCAM\Bin\Actcut.ActcutModelManager.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Actcut.CommonModel, Version=2.1.3.61522, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\..\..\AlmaCAM\Bin\Actcut.CommonModel.dll</HintPath>
+    </Reference>
     <Reference Include="Actcut.NestingManager, Version=1.0.1.52024, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\AlmaCAM\Bin\Actcut.NestingManager.dll</HintPath>
@@ -93,6 +97,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\..\..\..\AlmaCAM\Bin\AF_ImportTools.dll</HintPath>
       <Private>False</Private>
+    </Reference>
+    <Reference Include="Alma.BaseUI, Version=2.1.3.61522, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\..\..\AlmaCAM\Bin\Alma.BaseUI.dll</HintPath>
     </Reference>
     <Reference Include="Alma.NetKernel">
       <HintPath>C:\AlmaCAM\Bin\Alma.NetKernel.dll</HintPath>

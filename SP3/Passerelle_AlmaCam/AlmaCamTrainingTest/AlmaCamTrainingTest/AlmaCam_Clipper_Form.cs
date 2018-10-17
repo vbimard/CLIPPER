@@ -517,12 +517,10 @@ namespace AlmaCamTrainingTest
 
         private void AfterSendToWorkshop_Click(object sender, EventArgs e)
         {
-            /*
+            
             //IEntity TO_CUT_nesting;
 
-            Clipper_Dll.Clipper_DoOnAction_AfterSendToWorkshop doonaction= new Clipper_DoOnAction_AfterSendToWorkshop();
-           // Clipper_Dll.Clipper_DoOnAction_After_Cutting_end doonaction = new Clipper_DoOnAction_After_Cutting_end();
-
+            AF_Clipper_Dll.Clipper_DoOnAction_AfterSendToWorkshop doonaction= new Clipper_DoOnAction_AfterSendToWorkshop();
             string stage = "_TO_CUT_NESTING";
 
             //creation du fichier de sortie
@@ -541,7 +539,7 @@ namespace AlmaCamTrainingTest
             {
                 foreach (IEntity nesting in nestingselector.SelectedEntity)
                 {
-                    doonaction.execute(_Context, nesting);
+                    doonaction.execute( nesting);
 
                 }
             }
@@ -549,7 +547,7 @@ namespace AlmaCamTrainingTest
             
            // doonaction.execute(_Context, TO_CUT_nesting);
 
-           */
+          
         }
 
         private void purgerStockToolStripMenuItem_Click(object sender, EventArgs e)

@@ -26,6 +26,8 @@ using Actcut.ResourceModel;
 using System.Text.RegularExpressions;
 using System.Reflection;
 using System.Diagnostics;
+using Alma.BaseUI.Utils;
+using Actcut.CommonModel;
 //
 
 
@@ -566,7 +568,10 @@ namespace AF_Clipper_Dll
                 parametre_name = "_AUTHOR";
                 Parameters_Dictionnary.Add(parametre_name, context.UserId);
 
-
+                //option du workshop GlobalClosedSeparated or GlobalCloseOneClic
+                WorkShopOptionType WORKSHOP_OPTION = ActcutModelOptions.GetWorkShopOption(context);
+                parametre_name = "_WORKSHOP_OPTION ";
+                Parameters_Dictionnary.Add(parametre_name, WORKSHOP_OPTION.ToString());
 
 
                 //verification des chemins
@@ -1478,6 +1483,19 @@ namespace AF_Clipper_Dll
 
 
         }
+
+
+
+        /// <summary>
+        ///Non utilisée
+        /// controle de l'integerite des données du fichier texte
+        /// on controle les champs obligatoires pour l'import, et l'existantce du centre de frais avant de continue l'import
+        /// </summary>
+        /// <param name="line_dictionnary">dictionnaire de ligne interprété par le datamodel</param>
+        /// <returns>false ou tuue si integre</returns>
+
+        public Boolean CheckDataIntegerity(IContext contextlocal, Dictionary<string, object> line_dictionnary) { return true; }
+
         /// <summary>
         /// controle de l'integerite des données du fichier texte
         /// on controle les champs obligatoires pour l'import, et l'existantce du centre de frais avant de continue l'import
@@ -3656,160 +3674,220 @@ namespace AF_Clipper_Dll
         }
 
 
+    ////
+    //
+    /// <summary>
+    /// retour gp à L ENVOIE A L ATELIER
+    /// </summary>
+    /// 
+
+    public class Clipper_DoOnAction_AfterSendToWorkshop : AfterSendToWorkshopEvent
+    {
+
+        //cette fonction est lancée autant de fois qu'il y a de selection
+        //la multiselection n'est pas controlée
+        public override void OnAfterSendToWorkshopEvent(IContext contextlocal, AfterSendToWorkshopArgs args)
+        {
+            try {
+
+                //this.execute(contextlocal, args.NestingEntity);
+                execute(args.NestingEntity);
+            }
+
+
+            catch (Exception ie ){
+                MessageBoxEx.ShowError(ie.Message);
+            }
+        }
+
+
+
+        /// <summary>
+        /// creation auto du fichier texte à  la cloture
+        /// </summary>
+        /// <param name="args"></param>
+        public void execute(IEntity entity)
+        {
+            //recuperation des path
+            Clipper_Param.GetlistParam(entity.Context);
+            string export_gpao_path = Clipper_Param.GetPath("Export_GPAO");
+
+          
+            {
+                Clipper_Infos current_clipper_nestinfos = new Clipper_Infos();
+                //current_clipper_nestinfos.GetNestInfosBySheet(entity);
+
+                current_clipper_nestinfos.GetNestInfosByNesting(entity.Context, entity, "_TO_CUT_NESTING");
+                current_clipper_nestinfos.Export_NestInfosToFile(export_gpao_path);
+                //validation du stock
+
+                
+                current_clipper_nestinfos = null;
+            }
+
+
+        }
+
+
+
+
+
+    }
+
 
     /// <summary>
     /// retour gp generique
     /// on suppose que les toles sont deja associées
     /// </summary>
     /// 
-    /*
-    public class Clipper_DoOnAction : IDisposable
-    {
-        public void Dispose()
-        {
-            ///purge
-            GC.SuppressFinalize(this);
-        }
-       
-
-        /// <summary>
-        /// retourne le fichier de sortie clip a partir des arguments de l'evenement vefroe send to workshop
-        /// </summary>
-        /// <param name="contextlocal"></param>
-        /// <param name="nesting">nom du placement</param>
-        public void Export(IContext contextlocal, IEntity nesting)
-        {
-
-            //string stage = "_TO_CUT_NESTING";
-            //string sheet_type= "_TO_CUT_SHEET";
-            //creation du fichier de sortie
-
-            //recupere les path
-            Clipper_Param.GetlistParam(contextlocal);
-
-            string export_gpao_path = Clipper_Param.GetPath("Export_GPAO") + "\\" + nesting.DefaultValue.ToString() + ".txt";
-
-            //ecriture du fichier d'echange
-            using (StreamWriter export_gpao_file = new StreamWriter(@export_gpao_path))
+            /*
+            public class Clipper_DoOnAction : IDisposable
             {
-               
-
-            }
-
-
-
-
-        }
-        
-        /// <summary>
-        /// retourne le fichier clipper a partie de la boite de dialogue de la ploateforme
-        /// </summary>
-        /// <param name="contextlocal"></param>
-        public void Export(IContext contextlocal)
-        {
-
-            string stage = "_TO_CUT_NESTING";
-            //creation du fichier de sortie
-            //recupere les path
-            Clipper_Param.GetlistParam(contextlocal);
-            IEntitySelector nestingselector = null;
-
-            nestingselector = new EntitySelector();
-
-            //entity type pointe sur la list d'objet du model
-            nestingselector.Init(contextlocal, contextlocal.Kernel.GetEntityType("_TO_CUT_NESTING"));
-            nestingselector.MultiSelect = true;
+                public void Dispose()
+                {
+                    ///purge
+                    GC.SuppressFinalize(this);
+                }
 
 
-            if (nestingselector.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                foreach (IEntity nesting in nestingselector.SelectedEntity)
+                /// <summary>
+                /// retourne le fichier de sortie clip a partir des arguments de l'evenement vefroe send to workshop
+                /// </summary>
+                /// <param name="contextlocal"></param>
+                /// <param name="nesting">nom du placement</param>
+                public void Export(IContext contextlocal, IEntity nesting)
                 {
 
+                    //string stage = "_TO_CUT_NESTING";
+                    //string sheet_type= "_TO_CUT_SHEET";
+                    //creation du fichier de sortie
+
+                    //recupere les path
+                    Clipper_Param.GetlistParam(contextlocal);
 
                     string export_gpao_path = Clipper_Param.GetPath("Export_GPAO") + "\\" + nesting.DefaultValue.ToString() + ".txt";
 
                     //ecriture du fichier d'echange
                     using (StreamWriter export_gpao_file = new StreamWriter(@export_gpao_path))
                     {
-                        //Lecture
-                        using (Clipper_NestInfos current_clipper_nestinfos = new Clipper_NestInfos())
-                        {  //on set le context
-                            current_clipper_nestinfos.Export_NestInfosToFile(ref contextlocal, stage, nesting.DefaultValue, export_gpao_file);
+
+
+                    }
+
+
+
+
+                }
+
+                /// <summary>
+                /// retourne le fichier clipper a partie de la boite de dialogue de la ploateforme
+                /// </summary>
+                /// <param name="contextlocal"></param>
+                public void Export(IContext contextlocal)
+                {
+
+                    string stage = "_TO_CUT_NESTING";
+                    //creation du fichier de sortie
+                    //recupere les path
+                    Clipper_Param.GetlistParam(contextlocal);
+                    IEntitySelector nestingselector = null;
+
+                    nestingselector = new EntitySelector();
+
+                    //entity type pointe sur la list d'objet du model
+                    nestingselector.Init(contextlocal, contextlocal.Kernel.GetEntityType("_TO_CUT_NESTING"));
+                    nestingselector.MultiSelect = true;
+
+
+                    if (nestingselector.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                    {
+                        foreach (IEntity nesting in nestingselector.SelectedEntity)
+                        {
+
+
+                            string export_gpao_path = Clipper_Param.GetPath("Export_GPAO") + "\\" + nesting.DefaultValue.ToString() + ".txt";
+
+                            //ecriture du fichier d'echange
+                            using (StreamWriter export_gpao_file = new StreamWriter(@export_gpao_path))
+                            {
+                                //Lecture
+                                using (Clipper_NestInfos current_clipper_nestinfos = new Clipper_NestInfos())
+                                {  //on set le context
+                                    current_clipper_nestinfos.Export_NestInfosToFile(ref contextlocal, stage, nesting.DefaultValue, export_gpao_file);
+
+                                }
+
+                            }
 
                         }
 
+
                     }
+                    else { return; }
+
 
                 }
 
 
             }
-            else { return; }
 
 
-        }
-
-
-    }
-
-
-    */
+            */
 
 
 
-    /// <summary>
-    /// retour gp à L ENVOIE A L ATELIER
-    /// </summary>
-    /// 
+            /// <summary>
+            /// retour gp à L ENVOIE A L ATELIER
+            /// </summary>
+            /// 
 
 
-    /*
-        public class Clipper_DoOnAction_AfterSendToWorkshop : AfterSendToWorkshopEvent
-        {
-            public override void OnAfterSendToWorkshopEvent(IContext contextlocal, AfterSendToWorkshopArgs args)
+            /*
+                public class Clipper_DoOnAction_AfterSendToWorkshop : AfterSendToWorkshopEvent
+                {
+                    public override void OnAfterSendToWorkshopEvent(IContext contextlocal, AfterSendToWorkshopArgs args)
+                    {
+
+                        //this.execute(contextlocal, args.NestingEntity);
+
+                    }
+
+
+                }
+                */
+
+            /// <summary>
+            /// retour gp AVANT L ENVOIE A L ATELIER
+            /// </summary>
+            /// MyBeforeSendToWorkshopEvent : BeforeSendToWorkshopEvent
+            /// 
+            /// 
+            /// public class Clipper_DoOnAction_BeforeSendToWorkshop : BeforeSendToWorkshopEvent
+            /// 
+
+            /*
             {
 
-                //this.execute(contextlocal, args.NestingEntity);
+                public override void OnBeforeSendToWorkshopEvent(IContext context, BeforeSendToWorkshopArgs args)
+                {
+
+
+
+                }
 
             }
-
-          
-        }
-        */
-
-    /// <summary>
-    /// retour gp AVANT L ENVOIE A L ATELIER
-    /// </summary>
-    /// MyBeforeSendToWorkshopEvent : BeforeSendToWorkshopEvent
-    /// 
-    /// 
-    /// public class Clipper_DoOnAction_BeforeSendToWorkshop : BeforeSendToWorkshopEvent
-    /// 
-
-    /*
-    {
-
-        public override void OnBeforeSendToWorkshopEvent(IContext context, BeforeSendToWorkshopArgs args)
-        {
+            */
 
 
 
-        }
-
-    }
-    */
+            #endregion
 
 
 
-    #endregion
+            #region export clipper gpao : retour tole
 
-
-
-    #region export clipper gpao : retour tole
-
-    //creation des clipper infos issue des generic gp infos
-    public class Clipper_Infos : Generic_GP_Infos
+            //creation des clipper infos issue des generic gp infos
+        public class Clipper_Infos : Generic_GP_Infos
     {
         public override void Export_NestInfosToFile(string export_gpao_path)
         {
@@ -3826,11 +3904,13 @@ namespace AF_Clipper_Dll
 
                                 string Separator = ";";
                                 //recuperaiton des champs specifiques
-                                string NUMMATLOT;
+                                string NUMMATLOT="";
                                 currentnestinfos.Tole_Nesting.Specific_Tole_Fields.Get<string>("NUMMATLOT", out NUMMATLOT);
-
-                                //ecriture des entetes de nesting
-                                string Header_Line = "HEADER" + Separator +
+                                if(NUMMATLOT == "Undef"){ 
+                                NUMMATLOT = string.Empty;
+                                }
+                    //ecriture des entetes de nesting
+                    string Header_Line = "HEADER" + Separator +
                                 //currentnestinfos.Tole_Nesting.To_Cut_Sheet_Name + Separator +
                                 //ecriture des entetes de nesting
                                 // currentnestinfos.Tole_Nesting.Sheet_Reference + Separator +
@@ -3966,6 +4046,9 @@ namespace AF_Clipper_Dll
         public override void SetSpecific_Tole_Infos(Tole Tole)
         {
             base.SetSpecific_Tole_Infos(Tole);
+            string numatlot = Tole.StockEntity.GetFieldValueAsString("NUMMATLOT");
+            string numlot = Tole.StockEntity.GetFieldValueAsString("NUMLOT");
+
             Tole.Specific_Tole_Fields.Add<string>("NUMMATLOT", Tole.StockEntity.GetFieldValueAsString("NUMMATLOT"));
             Tole.Specific_Tole_Fields.Add<string>("NUMLOT", Tole.StockEntity.GetFieldValueAsString("NUMLOT"));
             
@@ -4008,10 +4091,17 @@ namespace AF_Clipper_Dll
 
             foreach (Tole offcut in Offcut_infos_List)
             {
-                
+                if (offcut.no_Stock==false) { 
                 offcut.Specific_Tole_Fields.Add<string>("NUMLOT", offcut.StockEntity.GetFieldValueAsString("NUMLOT"));
                 offcut.Specific_Tole_Fields.Add<string>("NUMMATLOT", offcut.StockEntity.GetFieldValueAsString("NUMMATLOT"));
+                }
+                else
+                {  ///chmaps vide pour les valuers non existantes
+                    offcut.Specific_Tole_Fields.Add<string>("NUMLOT","");
+                    offcut.Specific_Tole_Fields.Add<string>("NUMMATLOT", "");
 
+
+                }
 
             }
 
