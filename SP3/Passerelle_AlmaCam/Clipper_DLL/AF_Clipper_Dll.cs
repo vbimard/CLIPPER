@@ -531,7 +531,7 @@ namespace AF_Clipper_Dll
                 Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
                 Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "SHEET_REQUIREMENT").GetValueAsString());
 
-
+               
                 //log
                 parametre_name = "VERBOSE_LOG";
                 Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
@@ -540,10 +540,13 @@ namespace AF_Clipper_Dll
                 parametre_name = "CLIPPER_MACHINE_CF";
                 Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
                 Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "CLIPPER_MACHINE_CF").GetValueAsString());
+
                 /*parametres de sorties*/
                 parametre_name = "STRING_FORMAT_DOUBLE";
                 Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
-                Parameters_Dictionnary.Add(parametre_name, "{0:0.00###}");
+                //Parameters_Dictionnary.Add(parametre_name, "{0:0.00###}");
+                Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "STRING_FORMAT_DOUBLE").GetValueAsString());
+
                 parametre_name = "ALMACAM_EDITOR_NAME";
                 Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
                 Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "ALMACAM_EDITOR_NAME").GetValueAsString());
@@ -573,15 +576,21 @@ namespace AF_Clipper_Dll
                 parametre_name = "_WORKSHOP_OPTION ";
                 Parameters_Dictionnary.Add(parametre_name, WORKSHOP_OPTION.ToString());
 
-
-                //verification des chemins
-
-
                 //verification des path
                 Alma_Log.Info("verification de l'existance des path " , "GetlistParam");
                 if (checkClipperFolderExists() == false) { throw new System.ApplicationException("Certains chemin d'echanges de la Passerelle AlmaCam-clipper ne sont pas accessibles"); };
                 ///string AlmaCAmVersion = Directory.GetCurrentDirectory().ToString() + Parameters_Dictionnary.Values("");///
                 if (ckeckCompatibilityVersion() == false) { throw new System.ApplicationException("Version de la Dll clipper n'est pas validée pour cette version d'AlmaCam"); }
+
+
+                //verification des chemins
+                //tous les nouveaux paramétres doivent etre ajoutés ici pr ordre decroissant d ecreation (le dernier en bas)
+                parametre_name = "EXPLODE_MULTIPLICITY";
+                Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
+                Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "EXPLODE_MULTIPLICITY").GetValueAsString());
+
+
+
 
                 return true;
             }
@@ -629,6 +638,43 @@ namespace AF_Clipper_Dll
                 return (T)dic[key];
             }
             else { return default(T); }
+        }
+
+        /// <summary>
+        /// retourn la valeur de la clé recherché dans les paramètres
+        /// </summary>
+        /// <typeparam name="T">type générique </typeparam>
+        /// <param name="context">contexte </param>
+        /// <param name="PathVariable">clé a rechercher</param>
+        /// <returns></returns>
+        public static T TryGetParam<T>(this IDictionary<string, object> dic, string key)
+        {
+            //if (Parameters_Dictionnary.ContainsKey(key))
+            {
+                try {
+
+                        object obj;
+
+                        dic.TryGetValue(key, out obj);
+
+                        return (T)obj;
+
+                }
+                
+                catch (KeyNotFoundException)
+                {
+                    return default(T);
+
+
+                }
+                catch (Exception  e)
+                {
+                    MessageBox.Show(e.Message);
+                    return default(T);
+                }
+               
+            }
+            ///else { return default(T); }
         }
 
         /// <summary>
@@ -707,6 +753,21 @@ namespace AF_Clipper_Dll
             string key = "STRING_FORMAT_DOUBLE";
             //GetlistParam(context);//
             if (Parameters_Dictionnary.ContainsKey(key)) { return (string)Parameters_Dictionnary[key]; } else { return "Undef STRING_FORMAT_DOUBLE"; }
+
+        }
+        /// <summary>
+        /// explode multiplicity : mutliplicité, 
+        /// explose la multiplicité 
+        /// False : un fichier pour une mutliplicité n
+        /// True : tole ou n fichiers pour une mutliplicité n
+        /// </summary>
+        /// <returns></returns>
+        public static bool get_Multiplicity_Mode()
+        {
+            
+            string key = "EXPLODE_MULTIPLICITY";
+            //GetlistParam(context);//
+            if (Parameters_Dictionnary.ContainsKey(key)) { return (bool)Parameters_Dictionnary[key]; } else { return false; }
 
         }
 
@@ -3893,11 +3954,149 @@ namespace AF_Clipper_Dll
         {
             base.Export_NestInfosToFile(export_gpao_path);
             /***/
-
+           bool explodMultiplicity = Clipper_Param.get_Multiplicity_Mode();
+           string stringformatdouble= Clipper_Param.get_string_format_double();
             ///recuperation des placements selectionnés
+            ///
+            switch (explodMultiplicity)
+            {///normalement on conidere le premier placement
+                case false:
+                    {
+                        //concatenation du placement dans un seul fichier
+                        Nest_Infos_2 currentnestinfos =this.nestinfoslist.FirstOrDefault();
+                        using (StreamWriter export_gpao_file = new StreamWriter(@export_gpao_path + "\\" + currentnestinfos.Tole_Nesting.To_Cut_Sheet_Name + ".txt"))
+                        {
 
+
+                            string Separator = ";";
+                            //recuperaiton des champs specifiques
+                            string NUMMATLOT = "";
+                            currentnestinfos.Tole_Nesting.Specific_Tole_Fields.Get<string>("NUMMATLOT", out NUMMATLOT);
+                            if (NUMMATLOT == "Undef")
+                            {
+                                NUMMATLOT = string.Empty;
+                            }
+                            //ecriture des entetes de nesting
+                            string Header_Line = "HEADER" + Separator +
+                            //currentnestinfos.Tole_Nesting.To_Cut_Sheet_Name + Separator +
+                            //ecriture des entetes de nesting
+                            // currentnestinfos.Tole_Nesting.Sheet_Reference + Separator +
+                            currentnestinfos.Tole_Nesting.Stock_Name + Separator +
+                            //longeur
+                            currentnestinfos.Tole_Nesting.Sheet_Length + Separator +
+                            //largeur
+                            currentnestinfos.Tole_Nesting.Sheet_Width + Separator +
+                            //epaisseur
+                            currentnestinfos.Tole_Nesting.Thickness + Separator +
+                            //nuance
+                            currentnestinfos.Tole_Nesting.GradeName + Separator +
+                            //multiplicité
+                            currentnestinfos.Tole_Nesting.Mutliplicity + Separator +
+                             // temps de chargement
+                             String.Format(Clipper_Param.get_string_format_double(), (currentnestinfos.NestingSheet_loadingTimeInit / 60)) + Separator +
+                            currentnestinfos.Nesting_CentreFrais_Machine + Separator +
+                            "" + Separator + //on ignore le pdf
+                            currentnestinfos.Tole_Nesting.Sheet_EmfFile + Separator +
+                           //numero lot
+                           NUMMATLOT + Separator +
+                           // String.Format(Clipper_Param.get_string_format_double(), (Alma_Time.minutes(this.Sheet_loadingTimeInit + this.Sheet_loadingTimeEnd)));
+                           String.Format(Clipper_Param.get_string_format_double(), (currentnestinfos.NestingSheet_loadingTimeInit + currentnestinfos.NestingSheet_loadingTimeEnd) / 60) +
+                              "";
+                            export_gpao_file.WriteLine(Header_Line.Replace(",", "."));
+
+
+                            //ecriture des details pieces
+                            //recue
+                            foreach (Nested_PartInfo clipperpart in currentnestinfos.Nested_Part_Infos_List)
+                            {
+                                string idlnrout;
+                                clipperpart.Nested_PartInfo_specificFields.Get<string>("IDLNROUT", out idlnrout);
+                                string idlnbom;
+                                clipperpart.Nested_PartInfo_specificFields.Get<string>("IDLNBOM", out idlnbom);
+                                string CuttingTime = (currentnestinfos.Calculus_Parts_Total_Time == 0) == false ? String.Format(Clipper_Param.get_string_format_double(), clipperpart.Part_Time * clipperpart.Nested_Quantity / currentnestinfos.Calculus_Parts_Total_Time) : "0";
+
+                                string detail_Line =
+                                "DETAIL" + Separator +
+                                 idlnrout + Separator +
+                                 idlnbom + Separator +
+                                 clipperpart.Nested_Quantity + Separator +
+                                 clipperpart.Height + Separator +
+                                 clipperpart.Width + Separator +
+                                 String.Format(Clipper_Param.get_string_format_double(), clipperpart.Part_Balanced_Weight * clipperpart.Nested_Quantity / (currentnestinfos.Tole_Nesting.Sheet_Weight * currentnestinfos.Tole_Nesting.Mutliplicity)) + Separator +// * Tole_Nesting.Mutliplicity)) + Separator +
+                                                                                                                                                                                                                                                                  // clipperpart.Width + Separator;//+
+                                                                                                                                                                                                                                                                  //String.Format(Clipper_Param.get_string_format_double(), clipperpart.Part_Balanced_Weight * clipperpart.Nested_Quantity / (currentnestinfos.Tole_Nesting.Sheet_Weight * currentnestinfos.Tole_Nesting.Mutliplicity)) + Separator +
+                                String.Format(Clipper_Param.get_string_format_double(), clipperpart.Weight * 0.001) + Separator +
+                        ///String.Format(Clipper_Param.get_string_format_double(), clipperpart.Part_Time * clipperpart.Nested_Quantity / currentnestinfos.Calculus_Parts_Total_Time);//current_clipper_nestinfos.Nesting_TotalTime);
+                        CuttingTime;
+                                export_gpao_file.WriteLine(detail_Line.Replace(",", "."));
+
+                            }
+
+
+                            //ecriture  des chutes
+                            foreach (Tole currentoffcut in currentnestinfos.Offcut_infos_List)
+                            {
+                                string IsRectagular = (currentoffcut.Sheet_Length == currentoffcut.Sheet_Width) == true ? "1" : "0";
+                                double longueur, largeur;
+                                //si la tole est tournée, on inverse longueur et largeur
+                                longueur = currentoffcut.Sheet_Length;
+                                largeur = currentoffcut.Sheet_Width;
+
+                                if (currentoffcut.Sheet_Is_rotated)
+                                {
+                                    longueur = currentoffcut.Sheet_Width;
+                                    largeur = currentoffcut.Sheet_Length;
+                                }
+
+                                string offcut_Line =
+                            "CHUTE" + Separator +
+
+                            longueur + Separator +
+                            largeur + Separator +
+                            currentoffcut.Mutliplicity + Separator +
+                            //calcul du ratio
+                            String.Format(Clipper_Param.get_string_format_double(), (currentoffcut.Sheet_Surface / currentnestinfos.Tole_Nesting.Sheet_Total_Surface)) + Separator +
+                             // currentoffcut.rectangular + Separator +
+                             IsRectagular + Separator +
+                            //clipperoffcut.Rectangular = true ? "1" : "0" + Separator +
+                            /*chemin vers dpr  */
+                            //Separator +--> chemin vers dpr (n'a pas d'utilité dans clip)
+                            "" + Separator +
+                            currentoffcut.Sheet_EmfFile + Separator +
+                            String.Format(Clipper_Param.get_string_format_double(), currentoffcut.Sheet_Weight * 0.001);
+                                export_gpao_file.WriteLine(offcut_Line.Replace(",", "."));
+
+                                //validaton du stock sur les chutes
+                                //ecriture du SHEET_FILENAME
+                                IEntityList Sheets_To_Update;
+                                IEntity Sheet_To_Update;
+                                Sheets_To_Update = currentoffcut.SheetEntity.Context.EntityManager.GetEntityList("_SHEET", "ID", ConditionOperator.Equal, currentoffcut.Sheet_Id);///NestingStockEntity.Id);
+                                Sheets_To_Update.Fill(false);
+                                //construction de la liste des chutes
+                                Sheet_To_Update = SimplifiedMethods.GetFirtOfList(Sheets_To_Update);
+                                Sheet_To_Update.SetFieldValue("FILENAME", currentoffcut.Sheet_EmfFile);
+                                Sheet_To_Update.Save();
+
+
+
+
+                            }
+
+
+
+
+                        }
+
+
+
+                        break;
+                    }
+
+                case true:
+                    {
                         foreach (Nest_Infos_2 currentnestinfos in this.nestinfoslist)
                         {
+                        ///explosion placement
                             using (StreamWriter export_gpao_file = new StreamWriter(@export_gpao_path + "\\" + currentnestinfos.Tole_Nesting.To_Cut_Sheet_Name + ".txt"))
                             {
 
@@ -3909,8 +4108,8 @@ namespace AF_Clipper_Dll
                                 if(NUMMATLOT == "Undef"){ 
                                 NUMMATLOT = string.Empty;
                                 }
-                    //ecriture des entetes de nesting
-                    string Header_Line = "HEADER" + Separator +
+                                //ecriture des entetes de nesting
+                                string Header_Line = "HEADER" + Separator +
                                 //currentnestinfos.Tole_Nesting.To_Cut_Sheet_Name + Separator +
                                 //ecriture des entetes de nesting
                                 // currentnestinfos.Tole_Nesting.Sheet_Reference + Separator +
@@ -3924,7 +4123,8 @@ namespace AF_Clipper_Dll
                                 //nuance
                                 currentnestinfos.Tole_Nesting.GradeName + Separator +
                                 //multiplicité
-                                currentnestinfos.Tole_Nesting.Mutliplicity + Separator +
+                                //currentnestinfos.Tole_Nesting.Mutliplicity + Separator +
+                                "1" + Separator+
                                  // temps de chargement
                                  String.Format(Clipper_Param.get_string_format_double(), (currentnestinfos.NestingSheet_loadingTimeInit/60))+ Separator +
                                 currentnestinfos.Nesting_CentreFrais_Machine + Separator +
@@ -3932,8 +4132,10 @@ namespace AF_Clipper_Dll
                                 currentnestinfos.Tole_Nesting.Sheet_EmfFile + Separator +
                                //numero lot
                                NUMMATLOT + Separator +
-                                // String.Format(Clipper_Param.get_string_format_double(), (Alma_Time.minutes(this.Sheet_loadingTimeInit + this.Sheet_loadingTimeEnd)));
-                               (currentnestinfos.NestingSheet_loadingTimeInit + currentnestinfos.NestingSheet_loadingTimeEnd) / 60+
+                                    // String.Format(Clipper_Param.get_string_format_double(), (Alma_Time.minutes(this.Sheet_loadingTimeInit + this.Sheet_loadingTimeEnd)));
+                                //(currentnestinfos.NestingSheet_loadingTimeInit + currentnestinfos.NestingSheet_loadingTimeEnd) / 60+
+                                    String.Format(Clipper_Param.get_string_format_double(), (currentnestinfos.NestingSheet_loadingTimeInit + currentnestinfos.NestingSheet_loadingTimeEnd) / 60) +
+
                                   "";
                                export_gpao_file.WriteLine(Header_Line.Replace(",", "."));
                             
@@ -4018,9 +4220,9 @@ namespace AF_Clipper_Dll
 
 
                 }
-
-
-
+                        }
+                        break;
+                    }
 
 
 
