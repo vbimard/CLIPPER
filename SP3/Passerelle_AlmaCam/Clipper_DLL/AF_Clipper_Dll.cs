@@ -490,74 +490,106 @@ namespace AF_Clipper_Dll
                 //chemin import
                 //test migration sp3 changement de nom de cle pour clip configuraton
                 IParameterValue sp3;
-               
+                
+                bool rst;
+                
+
                 string parametersetkey = "CLIPPER_DLL";
                 parametre_name = "IMPORT_CDA";
                 context.ParameterSetManager.TryGetParameterValue(parametersetkey, parametre_name, out sp3);
                 if (sp3 == null) { parametersetkey = "CLIP_CONFIGURATION"; }
+
                 parametre_name = "IMPORT_CDA";
-                Alma_Log.Info("recuperation du parametre "+parametre_name, "GetlistParam");
-                Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "IMPORT_CDA").GetValueAsString());
+                //Alma_Log.Info("recuperation du parametre "+parametre_name, "GetlistParam");
+                //Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "IMPORT_CDA").GetValueAsString());
+                get_string_Parameter_Dictionary_Value(context, parametersetkey, parametre_name, "", ref Parameters_Dictionnary);
+
                 parametre_name = "IMPORT_DM";
-                Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
-                Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "IMPORT_DM").GetValueAsString());
+                //Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
+                //Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "IMPORT_DM").GetValueAsString());
+                get_string_Parameter_Dictionary_Value(context, parametersetkey, parametre_name, "", ref Parameters_Dictionnary);
+
                 parametre_name ="Export_GPAO";
                 Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
-                Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "EXPORT_Rp").GetValueAsString());
+                //Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "EXPORT_Rp").GetValueAsString());
+                get_string_Parameter_Dictionary_Value(context, parametersetkey, parametre_name, "EXPORT_Rp", ref Parameters_Dictionnary);
+
                 parametre_name = "EXPORT_DT";
-                Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
-                Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "EXPORT_Dt").GetValueAsString());                /**/
+                //Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
+                //Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "EXPORT_Dt").GetValueAsString());                /**/
+                get_string_Parameter_Dictionary_Value(context, parametersetkey, parametre_name, "EXPORT_Dt", ref Parameters_Dictionnary);
+
                 //description import
                 parametre_name = "IMPORT_AUTO";
-                Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
-                Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "IMPORT_AUTO").GetValueAsBoolean());                /**/
+                //Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
+                //Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "IMPORT_AUTO").GetValueAsBoolean());                /**/
+                get_bool_Parameter_Dictionary_Value(context, parametersetkey, parametre_name, "", ref Parameters_Dictionnary, false);
+
                 parametre_name = "EMF_DIRECTORY";
-                Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
-                Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "EMF_DIRECTORY").GetValueAsString());                /**/
+                //Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
+                //Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "EMF_DIRECTORY").GetValueAsString());                /**/
+                get_string_Parameter_Dictionary_Value(context, parametersetkey, parametre_name, "", ref Parameters_Dictionnary);
+
+
                 parametre_name = "MODEL_CA";
-                Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
-                Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "MODEL_CA").GetValueAsString());
+                //Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
+                //Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "MODEL_CA").GetValueAsString());
+                get_string_Parameter_Dictionary_Value(context, parametersetkey, parametre_name, "", ref Parameters_Dictionnary);
+
                 parametre_name = "MODEL_DM";
-                Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
-                Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "MODEL_DM").GetValueAsString());
+                //Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
+                //Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "MODEL_DM").GetValueAsString());
+                get_string_Parameter_Dictionary_Value(context, parametersetkey, parametre_name, "", ref Parameters_Dictionnary);
+
                 parametre_name = "MODEL_PATH";
-                Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
-                Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "MODEL_PATH").GetValueAsString());
+                //Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
+                //Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "MODEL_PATH").GetValueAsString());
+                get_string_Parameter_Dictionary_Value(context, parametersetkey, parametre_name, "", ref Parameters_Dictionnary);
+
                 parametre_name = "APPLICATION1";
-                Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
-                Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "APPLICATION1").GetValueAsString());
+                //Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
+                //Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "APPLICATION1").GetValueAsString());
+                get_string_Parameter_Dictionary_Value(context, parametersetkey, parametre_name, "", ref Parameters_Dictionnary);
 
                 parametre_name = "SHEET_REQUIREMENT";
-                Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
-                Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "SHEET_REQUIREMENT").GetValueAsString());
+                //Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
+                //Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "SHEET_REQUIREMENT").GetValueAsString());
+                get_string_Parameter_Dictionary_Value(context, parametersetkey, parametre_name, "", ref Parameters_Dictionnary);
 
-               
                 //log
                 parametre_name = "VERBOSE_LOG";
                 Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
                 Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "VERBOSE_LOG").GetValueAsBoolean());
                 //nom mahine clipper
                 parametre_name = "CLIPPER_MACHINE_CF";
-                Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
-                Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "CLIPPER_MACHINE_CF").GetValueAsString());
+                //Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
+                //Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "CLIPPER_MACHINE_CF").GetValueAsString());
+                get_string_Parameter_Dictionary_Value(context, parametersetkey, parametre_name, "", ref Parameters_Dictionnary);
 
                 /*parametres de sorties*/
                 parametre_name = "STRING_FORMAT_DOUBLE";
                 Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
                 //Parameters_Dictionnary.Add(parametre_name, "{0:0.00###}");
-                Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "STRING_FORMAT_DOUBLE").GetValueAsString());
+                //Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "STRING_FORMAT_DOUBLE").GetValueAsString());
+                get_string_Parameter_Dictionary_Value(context, parametersetkey, parametre_name, "", ref Parameters_Dictionnary);
 
                 parametre_name = "ALMACAM_EDITOR_NAME";
-                Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
-                Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "ALMACAM_EDITOR_NAME").GetValueAsString());
+                //Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
+                //Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "ALMACAM_EDITOR_NAME").GetValueAsString());
+                get_string_Parameter_Dictionary_Value(context, parametersetkey, parametre_name, "", ref Parameters_Dictionnary);
+
                 //parametre export : chemin de sortie des devis
                 parametre_name = "_EXPORT_GP_DIRECTORY";
-                Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
-                Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue("_EXPORT", "_EXPORT_GP_DIRECTORY").GetValueAsString());
+                //Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
+                //Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue("_EXPORT", "_EXPORT_GP_DIRECTORY").GetValueAsString());
+                get_string_Parameter_Dictionary_Value(context, "_EXPORT", parametre_name, "", ref Parameters_Dictionnary);
+
                 //repertoire de exports dpr
                 parametre_name = "_ACTCUT_DPR_DIRECTORY";
-                Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
-                Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue("_EXPORT", "_ACTCUT_DPR_DIRECTORY").GetValueAsString());
+                //Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
+                //Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue("_EXPORT", "_ACTCUT_DPR_DIRECTORY").GetValueAsString());
+                get_string_Parameter_Dictionary_Value(context, "_EXPORT", parametre_name, "", ref Parameters_Dictionnary);
+
                 //Champs Spécifique a reporter à partir des information des pieces à produire et de lors de l'import gpao dans les pieces2d (reference almacam)
                 //entrez l'information du nom de champs 2d puis le nom du champs du line_dictionnary
                 // NOM_CHAMPS|NOM_CHAMPS_DU_LINE_DICTIONNARY
@@ -586,14 +618,18 @@ namespace AF_Clipper_Dll
                 //verification des chemins
                 //tous les nouveaux paramétres doivent etre ajoutés ici pr ordre decroissant d ecreation (le dernier en bas)
                 parametre_name = "EXPLODE_MULTIPLICITY";
-                Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
-                Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "EXPLODE_MULTIPLICITY").GetValueAsString());
-
+                //Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
+                //Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "EXPLODE_MULTIPLICITY").GetValueAsString());
+                //public static bool get_Bool_Parameter_Dictionary_Value(IContext contextlocal, string parametersetkey, string parameter_name, string parameterkeyname, ref Dictionary<string, object> parameters_dictionnary, bool defaultvalue)
+                get_bool_Parameter_Dictionary_Value(context, parametersetkey, parametre_name, "", ref Parameters_Dictionnary,false);
 
 
 
                 return true;
             }
+
+           
+
             catch (KeyNotFoundException ex) {
                 Alma_Log.Error(ex, "CETTE BASE NE SEMBLE PAS ETRE CONFIGUREE POUR CLIPPER !!! ");
                 Alma_Log.Error(ex, "Veuiller verifier la configuration des paramètres de l'import clipper (nom et id des champs....)");
@@ -640,6 +676,100 @@ namespace AF_Clipper_Dll
             else { return default(T); }
         }
 
+        /// <summary>
+        /// recuperation des parametres de type string
+        /// </summary>
+        /// <param name="contextlocal">contexte a etudier</param>
+        /// <param name="parametersetkey">cle du jeu d'option general nom de la dll </param>
+        /// <param name="parameter_name">nom du parametre dans le dictionnaire</param>
+        /// <param name="parameterkeyname">nom de la clé almacam stockant le parametre</param>
+        /// <param name="parameters_dictionnary">nom du dictionnaire</param>
+        /// <returns></returns>
+        public static bool get_string_Parameter_Dictionary_Value(IContext contextlocal,string parametersetkey,string parameter_name, string parameterkeyname, ref Dictionary<string, object> parameters_dictionnary)
+        {
+            try
+            {
+                bool rst = false;
+                IParameterValue value;
+                if (  string.IsNullOrEmpty(parameterkeyname)) { parameterkeyname = parameter_name; }
+                Alma_Log.Info("recuperation du parametre " + parameter_name, "GetlistParam");
+                rst =contextlocal.ParameterSetManager.TryGetParameterValue(parametersetkey, parameterkeyname, out value);
+                if (rst == false)
+                {
+                    parameters_dictionnary.Add(parameter_name, "");
+                    throw new MissingParameterException(parameter_name);
+                    rst = false;
+                }
+                else
+                {
+                    // Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "IMPORT_CDA").GetValueAsString());
+                    parameters_dictionnary.Add(parameter_name, value.GetValueAsString());
+                }
+ 
+
+                return rst;
+            }
+            catch(MissingParameterException)
+            {
+
+                return false;
+            }
+            catch (Exception ie)
+            {
+                MessageBox.Show(ie.Message);
+                return false;
+            }
+
+
+
+        }
+        /// <summary>
+        /// recuperation des parametres de type string
+        /// </summary>
+        /// <param name="contextlocal">contexte a etudier</param>
+        /// <param name="parametersetkey">cle du jeu d'option general nom de la dll </param>
+        /// <param name="parameter_name">nom du parametre dans le dictionnaire</param>
+        /// <param name="parameterkeyname">nom de la clé almacam stockant le parametre</param>
+        /// <param name="parameters_dictionnary">nom du dictionnaire</param>
+        /// <returns></returns>
+        public static bool get_bool_Parameter_Dictionary_Value(IContext contextlocal, string parametersetkey, string parameter_name, string parameterkeyname, ref Dictionary<string, object> parameters_dictionnary, bool defaultvalue)
+        {
+            try
+            {
+                bool rst = false;
+                IParameterValue value;
+                if (string.IsNullOrEmpty(parameterkeyname)) { parameterkeyname = parameter_name; }
+                Alma_Log.Info("recuperation du parametre " + parameter_name, "GetlistParam");
+                rst = contextlocal.ParameterSetManager.TryGetParameterValue(parametersetkey, parameterkeyname, out value);
+                if (rst == false)
+                {  
+                    parameters_dictionnary.Add(parameter_name, defaultvalue);
+                    throw new MissingParameterException(parameter_name);
+                    rst = false;
+                }
+                else
+                {
+                    // Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "IMPORT_CDA").GetValueAsString());
+                    parameters_dictionnary.Add(parameter_name, value.GetValueAsBoolean());
+                }
+
+
+                return rst;
+            }
+            catch (MissingParameterException)
+            {
+
+                return false;
+            }
+            catch (Exception ie)
+            {
+                MessageBox.Show(ie.Message);
+                return false;
+            }
+
+
+
+        }
         /// <summary>
         /// retourn la valeur de la clé recherché dans les paramètres
         /// </summary>
@@ -4404,8 +4534,21 @@ namespace AF_Clipper_Dll
 
 }
 
+#region exception
+public class MissingParameterException : Exception
+{
+
+    public MissingParameterException(string parametername) 
+    {
+        MessageBox.Show("Il manque le parametres" + parametername +" dans la base almacam");
+    }
+
+   
+
+}
 
 
+#endregion
 
 
 ///recuperation des pipes pour communication interapplication

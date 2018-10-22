@@ -651,6 +651,8 @@ namespace AF_Export_Devis_Clipper
             IEntity clientEntity = quoteEntity.GetFieldValueAsEntity("_FIRM");
             IEntity contactEntity = quoteEntity.GetFieldValueAsEntity("_CONTACT");
             string contactName = "";
+           
+
             if (contactEntity != null)
                 contactName = contactEntity.GetFieldValueAsString("_LAST_NAME") + " " + contactEntity.GetFieldValueAsString("_FIRST_NAME");
 
@@ -674,10 +676,17 @@ namespace AF_Export_Devis_Clipper
 
             data[i++] = indice; //Indice
             IField field;
+            string internal_comment = ""; //commentaires internes
+            string external_comment =""; //commentaires externe
+
             if (quoteEntity.EntityType.TryGetField("_CLIENT_ORDER_NUMBER", out field))
                 data[i++] = EmptyString(quoteEntity.GetFieldValueAsString("_CLIENT_ORDER_NUMBER")).ToUpper(); //Repère commercial interne
             else
-                data[i++] = ""; //Repère commercial interne
+            //commentaires
+            external_comment = "";  //
+            internal_comment = FormatComment(EmptyString(quoteEntity.GetFieldValueAsString("_COMMENTS"))); //commentaires internes des devis
+
+            data[i++] = ""; //Repère commercial interne
             data[i++] = EmptyString(clientEntity.GetFieldValueAsString("_EXTERNAL_ID")).ToUpper(); //Code client
             data[i++] = EmptyString(clientEntity.GetFieldValueAsString("_NAME")); //Nom client
             data[i++] = EmptyString(quoteEntity.GetFieldValueAsString("_DELIVERY_ADDRESS")); //Ligne adresse 1
@@ -690,29 +699,30 @@ namespace AF_Export_Devis_Clipper
             data[i++] = ""; //Code activité
             data[i++] = "1"; //Etat
             data[i++] = ""; //N° revue de contrat
-            data[i++] = ""; //Organisme de contrôle
-            data[i++] = userCode; //Code employé (défaut) Sce tech. commercial ou méthodes
-            data[i++] = ""; //Référence client de l'AO
-            data[i++] = ""; //Responsable Méthode chez le client
-            data[i++] = contactName; //Responsable achat chez le client
-            data[i++] = ""; //Responsable qualité chez le client
-            data[i++] = userCode; //Employé Commercial
-            data[i++] = ""; //Employé responsable qualité
-            data[i++] = ""; //Responsable achat
-            data[i++] = ""; //Responsable validation visa
-            data[i++] = GetFieldDate(quoteEntity, "_SENT_DATE"); //Date visa resp. (défaut) Sce tech. commercial ou méthodes
-            data[i++] = GetFieldDate(quoteEntity, "_SENT_DATE"); //Date visa resp. Commercial
-            data[i++] = ""; //Date visa resp. Qualité
-            data[i++] = ""; //Date visa resp. Achat
-            data[i++] = ""; //Date responsablevalidation visa//
-            data[i++] = ""; //Date réponse souhaitée//
-            data[i++] = ""; //Temps mis pour faire le devis//
-            data[i++] = ""; //Date de début//
-            data[i++] = "9"; //Monnaie//
-            data[i++] = EmptyString(quoteEntity.GetFieldValueAsString("_COMMENTS")+";");//Observations Entête devis
-            data[i++] = ""; //Incoterms (champ observations)
-            DateTime validityDate = quoteEntity.GetFieldValueAsDateTime("_SENT_DATE").AddDays(Convert.ToInt32(quoteEntity.GetFieldValueAsDouble("_ACCEPTANCE_PERIOD")));
-            data[i++] = validityDate.ToString("yyyyMMdd");
+            data[i++] = "1"; //Organisme de contrôle 16
+            data[i++] = userCode; //Code employé (défaut) Sce tech. commercial ou méthodes 17
+            data[i++] = ""; //Référence client de l'AO 18
+            data[i++] = ""; //Responsable Méthode chez le client 19
+            data[i++] = contactName; //Responsable achat chez le client 20
+            data[i++] = ""; //Responsable qualité chez le client 21 
+            data[i++] = userCode; //Employé Commercial 22
+            data[i++] = ""; //Employé responsable qualité 23 
+            data[i++] = ""; //Responsable achat 24
+            data[i++] = ""; //Responsable validation visa 25
+            data[i++] = GetFieldDate(quoteEntity, "_SENT_DATE"); //Date visa resp. (défaut) Sce tech. commercial ou méthodes 26
+            data[i++] = GetFieldDate(quoteEntity, "_SENT_DATE"); //Date visa resp. Commercial 27
+            data[i++] = ""; //Date visa resp. Qualité 28
+            data[i++] = ""; //Date visa resp. Achat 29
+            data[i++] = ""; //Date responsablevalidati on visa// 30
+            data[i++] = ""; //Date réponse souhaitée// 31
+            data[i++] = "0"; //Temps mis pour faire le devis// 32
+            data[i++] = ""; //Date de début// 33
+            data[i++] = "9"; //Monnaie// 34 
+            data[i++] = external_comment; ; //Observations Entête devis            35
+            data[i++] = ""; //Incoterms (champ observations) 36
+            DateTime validityDate = quoteEntity.GetFieldValueAsDateTime("_SENT_DATE").AddDays(Convert.ToInt32(quoteEntity.GetFieldValueAsDouble("_ACCEPTANCE_PERIOD"))); //37
+            data[i++] = validityDate.ToString("yyyyMMdd"); //38
+            data[i++] = internal_comment;//Observations Entête devis //39
             WriteData(data, i, ref file);
         }
 
@@ -745,11 +755,16 @@ namespace AF_Export_Devis_Clipper
                     string[] data = new string[50];
                     string reference = null;
                     string modele = null;
+                    string internal_comment="";
+                    string external_comment = "";
                     GetReference(partEntity, "PART", true, out reference, out modele);
 
+
+                    internal_comment = FormatComment(EmptyString(quoteEntity.GetFieldValueAsString("_COMMENTS")));
+
                     data[i++] = "OBSDEVIS";
-                    data[i++] = ""; //Observation interne
-                    data[i++] = EmptyString(partEntity.GetFieldValueAsString("_COMMENTS")); //Observation client
+                    data[i++] = internal_comment; //Observation interne
+                    data[i++] = external_comment; //Observation client
                     data[i++] = ""; // Conditions de règlement
                     data[i++] = GetQuoteNumber(quoteEntity);//N° devis
                     data[i++] = reference;//Code pièce
@@ -844,9 +859,14 @@ namespace AF_Export_Devis_Clipper
                     string modele = null;
                     GetReference(setEntity, "SET", true, out reference, out modele);
 
+                    //commentaires
+                    string external_comment = "";  //
+                    string internal_comment = FormatComment(EmptyString(setEntity.GetFieldValueAsString("_COMMENTS"))); //commentaires internes des devis
+
+
                     data[i++] = "OBSDEVIS";
-                    data[i++] = ""; //Observation interne
-                    data[i++] = EmptyString(setEntity.GetFieldValueAsString("_COMMENTS")); //Observation client
+                    data[i++] = external_comment; //Observation interne
+                    data[i++] = internal_comment;// EmptyString(setEntity.GetFieldValueAsString("_COMMENTS")); //Observation client
                     data[i++] = ""; // Conditions de règlement
                     data[i++] = GetQuoteNumber(quoteEntity);//N° devis
                     data[i++] = reference;//Code pièce
@@ -1066,6 +1086,10 @@ namespace AF_Export_Devis_Clipper
                     data[i++] = ""; //Nb pers TP
                     data[i++] = ""; //Nb Pers TU
                     WriteData(data, i, ref file);
+
+
+                   
+
                 }
 
                 {
@@ -1120,6 +1144,19 @@ namespace AF_Export_Devis_Clipper
                 #endregion
             }
         }
+
+
+
+        /// <summary>
+        /// creation de la piece globale
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="quote"></param>
+        /// <param name="formatProvider"></param>
+        /// <param name="doOffre"></param>
+        /// <param name="rang"></param>
+        /// <param name="reference"></param>
+        /// <param name="modele"></param>
         private void GlobalItem(ref string file, IQuote quote, NumberFormatInfo formatProvider, bool doOffre, string rang, string reference, string modele)
         {
             IEntity quoteEntity = quote.QuoteEntity;
@@ -1272,6 +1309,10 @@ namespace AF_Export_Devis_Clipper
                     string partReference = null;
                     string partModele = null;
                     GetReference(partEntity, "PART", false, out partReference, out partModele);
+
+
+
+
 
                     data[i++] = "ENDEVIS";
                     data[i++] = GetQuoteNumber(quoteEntity); //N° devis
@@ -1986,6 +2027,12 @@ namespace AF_Export_Devis_Clipper
                 data[i++] = ""; //Nb pers TP
                 data[i++] = ""; //Nb Pers TU
                 WriteData(data, i, ref file);
+
+
+                ///ecriture de l'attachement piece
+                Write_Documents(partEntity, quote.QuoteEntity.Id, ref file);
+
+
             }
 
             #endregion
@@ -2053,6 +2100,9 @@ namespace AF_Export_Devis_Clipper
                     hourlyCost = unitCost / ((tpsPrep / parentQty) + tpsUnit);
                 data[i++] = hourlyCost.ToString("#0.0000", formatProvider); //Taux horaire (/heure)
 
+                string internal_comments;
+
+
                 data[i++] = GetFieldDate(quoteEntity, "_CREATION_DATE"); //Date
                 data[i++] = GetQuoteNumber(quoteEntity); //N° devis
                 data[i++] = ""; //Nom fichier joint
@@ -2063,7 +2113,7 @@ namespace AF_Export_Devis_Clipper
                 data[i++] = "0"; //N° identifiant GED 5
                 data[i++] = "0"; //N° identifiant GED 6
                 data[i++] = "0"; //Niveau du rang
-                data[i++] = operationEntity.GetFieldValueAsString("_COMMENTS"); ; //Observations
+                data[i++] = "" ; //Observations
                 data[i++] = ""; //Lien avec la phase de nomenclature
                 data[i++] = ""; //Date dernière modif
                 data[i++] = ""; //Employé modif
@@ -2382,8 +2432,21 @@ namespace AF_Export_Devis_Clipper
                 _ReferenceIdList.Add(entity, new KeyValuePair<string, string>(reference, modele));
             }
         }
+
+        ///remplacement les sauts de ligne par des espaces
+        /// pas de gestion des rtf car specifique clipper sur les 
+        /// pad de gestion des caracteres spéciaux (valeur_sortie=Regex.Replace(valeur_entrée, "[^a-zA-Z0-9_]", "");)
+        private static string FormatComment(string Comment)
+        {   //remplace les sauts de ligne par les espaces
+            //
+            Comment=Comment.Replace("\r\n", " ");
+
+            return Comment;
+        }
         private static string FormatDesignation(string designation)
         {
+
+           
             return designation;
         }
         private static string GetFieldDate(IEntity quoteEntity, string fieldKey)
@@ -2406,9 +2469,63 @@ namespace AF_Export_Devis_Clipper
         }
 
         #endregion
-
-
         
+        # region Document
+        /// <summary>
+        /// ecriteure de l'attacjhement DOCUMENT
+        /// sous la forme DOCUMENT¤3¤<RépertoireSociété>\Documents\403 704 275 0.jpg¤403 704 275 0¤0
+        /// 
+        /// </summary>
+        /// 
+        private bool Write_Documents(IEntity Part, long quote_id,ref string file)
+        {
+            try {
+
+
+                IAttachmentValueList part_attachement_list = Part.GetFieldValue("_ATTACHMENTS") as IAttachmentValueList;
+
+                if (part_attachement_list.Count>0)
+                {
+
+                string ExportDirectory = "";
+                _PathList.TryGetValue("Export_GP_Directory", out ExportDirectory);
+
+                  foreach (IAttachmentValue document in part_attachement_list)
+                    {
+
+                        string filename = Path.GetFileName(document.FileName);
+                        string outputdirectory = ExportDirectory + "\\" + quote_id.ToString() ;
+                        CreateDirectory(outputdirectory);
+                        string fullfileName = outputdirectory + "\\"+ Path.GetFileName(document.FileName);
+                        part_attachement_list.SaveAs(document, @fullfileName);
+                    
+                    //stockTarget.FieldAddAttachment("_CCPU", tempfileName);
+                    //File.Delete(tempfileName);
+                    //repertoire export
+                    //
+                   
+                    
+                    file += "DOCUMENT¤3¤"+ @fullfileName + "¤"+Path.GetFileNameWithoutExtension(filename)+ "¤0¤\r\n";
+
+
+                    }
+                }
+
+
+
+
+
+
+                return true;
+            } catch (Exception ie) {
+
+
+                return false;
+
+            }
+
+        }
+        #endregion 
 
 
     }
@@ -2440,7 +2557,7 @@ namespace AF_Export_Devis_Clipper
     }
 
 
-
+    
 
     class AF_Export_Devis_Clipper_Log
     {

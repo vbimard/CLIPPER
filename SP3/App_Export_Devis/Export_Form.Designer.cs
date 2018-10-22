@@ -50,7 +50,7 @@
             this.txtQuoteid.Name = "txtQuoteid";
             this.txtQuoteid.Size = new System.Drawing.Size(100, 20);
             this.txtQuoteid.TabIndex = 1;
-            this.txtQuoteid.Text = "2";
+            this.txtQuoteid.Text = "6";
             // 
             // button1
             // 
