@@ -177,14 +177,13 @@ namespace AF_Export_Devis_Clipper
                 }else {
 
 
-                    throw new  UnvalidatedQuoteStatus("Le devis n'est pas visible dans les devis envoyés ou clos.");
+                    throw new  UnvalidatedQuoteStatus("Le devis "+iquote.QuoteEntity.Id.ToString() + " n'est pas visible dans les devis envoyés ou clos ");
 
                    
                 }
                
                         return rst;
-                //IEntityList closed_quotes = iquote.Context.EntityManager.GetEntityList("_QUOTE_CLOSED", "_CLOSE_REASON", ConditionOperator.Equal, 1);
-
+             
 
 
             }
@@ -240,7 +239,7 @@ namespace AF_Export_Devis_Clipper
                 }
                 else
                 {
-                    throw new UnvalidatedQuoteStatus("Le devis n'est pas visible dans les devis envoyés ou clos.");
+                    throw new UnvalidatedQuoteStatus("Le devis "+iquote.QuoteEntity.Id.ToString()+" n'est pas visible dans les devis envoyés ou clos.");
                     
                 }
                 
@@ -316,27 +315,7 @@ namespace AF_Export_Devis_Clipper
 
                 if (!string.IsNullOrEmpty(Export_DPR_Directory)) { _PathList.Add("Export_DPR_Directory", Export_DPR_Directory);  }
                     
-               
-
-
-
-
-                //string Export_GP_Directory = contextlocal.ParameterSetManager.GetParameterValue("_EXPORT", "_EXPORT_GP_DIRECTORY").GetValueAsString();
-                //string Export_DPR_Directory = contextelocal.ParameterSetManager.GetParameterValue("_EXPORT", "_ACTCUT_DPR_DIRECTORY").GetValueAsString();
-
-
-                //control des machines
-                /*
-                IParameterValue quotemachineparameter;
-                string parametersetkey = "_MACHINE_LASER";
-                string parametre_name = "_CENTRE_FRAIS";
-                context.ParameterSetManager.TryGetParameterValue(parametersetkey, parametre_name, out quotemachineparameter);
-                */
-       //control des machines
-                //IEntityList quote_machines = context.EntityManager.GetEntityList("_MATERIAL");
-                //materials.Fill(false);
-
-
+       
 
                 return valid_context;
                 
@@ -485,7 +464,13 @@ namespace AF_Export_Devis_Clipper
 
 
 
-
+        /// <summary>
+        /// export pour debugage
+        /// </summary>
+        /// <param name="Context"></param>
+        /// <param name="QuoteList"></param>
+        /// <param name="CustomExportDirectory"></param>
+        /// <returns></returns>
         public bool Export(IContext Context, IEnumerable<IQuote> QuoteList, string CustomExportDirectory)
         {
             try {
@@ -512,20 +497,34 @@ namespace AF_Export_Devis_Clipper
 
                 if (QuoteList.Count() == 1)
                 {
-
+                   
 
                     FileName = "Trans_" + QuoteList.First().QuoteEntity.Id.ToString("####") + ".txt"; // QuoteList.First().QuoteInformation.IncNo.ToString("####") + ".txt";
                         IQuote quote = QuoteList.FirstOrDefault();
+
+                    if (Validate_Quote(quote)) {
                         FullPath_FileName = Path.Combine(ExportDirectory, FileName);
                         rst = InternalExport(Context, QuoteList, FullPath_FileName);
-                }
 
+                    }
+                    else
+                    {
+                        throw new UnvalidatedQuoteStatus("Probleme detecté sur le devis " + quote.QuoteEntity.Id);
+                        //Environement.exit(0)
+                        //return false;
+                    }
+
+
+                } 
 
                 return rst;
 
 
             }
-
+            catch (UnvalidatedQuoteStatus msg)
+            {
+                Environment.Exit(0); return false;
+            }
             catch (DirectoryNotFoundException dirEx)
             {
                 // directory not found --> on quit
@@ -548,6 +547,7 @@ namespace AF_Export_Devis_Clipper
                 string FullPath_FileName = "";
 
                 //verification de l'integrité des données
+                
                 //check_database_Integerity
                 Validate_Context(contextlocal);
                 //preparing export
@@ -558,9 +558,17 @@ namespace AF_Export_Devis_Clipper
                     if (string.IsNullOrEmpty(FileName))
                     {
                         IQuote quote = QuoteList.FirstOrDefault();
+                        //verification du devis 
+                        if (Validate_Quote(quote)) { 
                         FileName = "Trans_" + QuoteList.First().QuoteInformation.IncNo.ToString("####") + ".txt";
-                                             
-                       
+                        }
+                        else
+                        {
+                            Environment.Exit(0);
+
+                        }
+
+
                     }
                     else
                     {
@@ -575,7 +583,10 @@ namespace AF_Export_Devis_Clipper
                 return rst;
 
             }
-
+            catch (UnvalidatedQuoteStatus)
+             {
+                return false;
+                        }
             catch (DirectoryNotFoundException dirEx)
             {
                 // directory not found --> on quit
@@ -584,6 +595,7 @@ namespace AF_Export_Devis_Clipper
                 return false;
             }
 
+            
 
             catch (Exception ie) { System.Windows.Forms.MessageBox.Show(ie.Message); return false; }
 
@@ -630,11 +642,13 @@ namespace AF_Export_Devis_Clipper
                 _ReferenceIdList = new Dictionary<IEntity, KeyValuePair<string, string>>();
                 _ReferenceList = new Dictionary<string, string>();
                 _ReferenceListCount = new Dictionary<string, long>();
-
+                //export de l' entetes
                 QuoteHeader(ref file, quote, formatProvider);
+                //export des offres
                 QuoteOffre(ref file, quote, formatProvider);
-
+                //export des part
                 QuotePart(ref file, quote, "001", formatProvider);
+                //export des ensembles
                 QuoteSet(ref file, quote, "001", formatProvider);
 
                 file = file + "Fin d'enregistrement OK¤" + Environment.NewLine;
@@ -724,6 +738,9 @@ namespace AF_Export_Devis_Clipper
             data[i++] = validityDate.ToString("yyyyMMdd"); //38
             data[i++] = internal_comment;//Observations Entête devis //39
             WriteData(data, i, ref file);
+
+
+            Write_Documents_Quote_Pdf(quoteEntity);
         }
 
 
@@ -1363,9 +1380,7 @@ namespace AF_Export_Devis_Clipper
                     string assistantType = partEntity.GetFieldValueAsString("_ASSISTANT_TYPE");
                     string partFileName = partEntity.GetFieldValueAsString("_FILENAME");
 
-                    //string partName="" ;
-                    //filelist.TryGetValue(partEntity.GetFieldValueAsString("_REFERENCE"), out partName );
-                    ///
+                   
                     //ATTENTION LES GENERATION DES DPR DEPEND DE LA LICENCE/ IL FAUT UNE QUOTE CUT 
                     //SINON IL S4AGIT DE PIECES ALMACAM
                     //
@@ -1388,9 +1403,7 @@ namespace AF_Export_Devis_Clipper
                     
                     
                     {
-                        //emfFile;
-                       
-                       // if (_PathList["ACTCUT_DPR_DIRECTORY"] != "") {
+                      
                        if (!string.IsNullOrEmpty(dpr_directory)) { 
                             
                             string empty_emfFile;
@@ -1398,7 +1411,7 @@ namespace AF_Export_Devis_Clipper
                             //cas général
                             emfFile = partEntity.GetFieldValueAsString("_DPR_FILENAME") + ".emf";
                             //emfFile vide
-                            empty_emfFile = dpr_directory + "\\" + "Quote_" + quote.QuoteEntity.Id + "\\"+ partEntity.GetFieldValueAsString("_REFERENCE")+".emf"; // + Path.GetFileName(partEntity.GetImageFieldValueAsLinkFile("_PREVIEW"));
+                            empty_emfFile = dpr_directory + "\\" + "Quote_" + quote.QuoteEntity.Id + "\\"+ partEntity.GetFieldValueAsString("_REFERENCE")+".dpr.emf"; // + Path.GetFileName(partEntity.GetImageFieldValueAsLinkFile("_PREVIEW"));
                             //cas general
                              emfFile = GetEmfFile(partEntity, empty_emfFile);
 
@@ -2494,9 +2507,9 @@ namespace AF_Export_Devis_Clipper
                     {
 
                         string filename = Path.GetFileName(document.FileName);
-                        string outputdirectory = ExportDirectory + "\\" + quote_id.ToString() ;
+                        string outputdirectory = ExportDirectory + "\\attachements\\" + quote_id.ToString() ;
                         CreateDirectory(outputdirectory);
-                        string fullfileName = outputdirectory + "\\"+ Path.GetFileName(document.FileName);
+                        string fullfileName = outputdirectory + "\\" + Path.GetFileName(document.FileName);
                         part_attachement_list.SaveAs(document, @fullfileName);
                     
                     //stockTarget.FieldAddAttachment("_CCPU", tempfileName);
@@ -2525,6 +2538,59 @@ namespace AF_Export_Devis_Clipper
             }
 
         }
+        
+        /// <summary>
+        /// ecriture du devis dans un dossier externalisé pour consultations
+        ///
+        /// 
+        /// </summary>
+        /// 
+        private bool Write_Documents_Quote_Pdf(IEntity quoteEntity)
+        {
+            try
+            {
+
+
+                IAttachmentValueList quote_attachement_list = quoteEntity.GetFieldValue("_PROPOSAL") as IAttachmentValueList;
+            
+                if (quote_attachement_list.Count > 0)
+                {
+
+                    string ExportDirectory = "";
+                    _PathList.TryGetValue("Export_GP_Directory", out ExportDirectory);
+
+                    foreach (IAttachmentValue document in quote_attachement_list)
+                    {
+
+                        string filename = Path.GetFileName(document.FileName).Replace(@"\\Wpm.Implement.Manager.Entity","");
+                              string outputdirectory = ExportDirectory + "\\attachements";
+                        CreateDirectory(outputdirectory);
+                        string fullfileName = outputdirectory + "\\" + filename;
+                        quote_attachement_list.SaveAs(document, @fullfileName);
+
+                  
+
+                    }
+                }
+
+
+
+
+
+
+                return true;
+            }
+            catch (Exception ie)
+            {
+
+
+                return false;
+
+            }
+
+        }
+
+
         #endregion 
 
 
@@ -2541,7 +2607,7 @@ namespace AF_Export_Devis_Clipper
     {
         public UnvalidatedQuoteStatus(string message ) : base(message)
         {
-            MessageBox.Show(base.Message, string.Format("Probleme sur le devis :" ,"", DateTime.Now.ToLongTimeString()), MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(base.Message, string.Format("Probleme sur le status ou l'existance du devis selectionné" ,"", DateTime.Now.ToLongTimeString()), MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
@@ -2556,8 +2622,8 @@ namespace AF_Export_Devis_Clipper
         }
     }
 
+    #endregion
 
-    
 
     class AF_Export_Devis_Clipper_Log
     {
@@ -2572,5 +2638,5 @@ namespace AF_Export_Devis_Clipper
         
     }
    
-    #endregion
+  
 }
