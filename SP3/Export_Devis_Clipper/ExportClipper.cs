@@ -386,7 +386,7 @@ namespace AF_Export_Devis_Clipper
 
         /// <summary>
         /// creer les dpr du devis associés et copie eventuellement les dpr dans un autre dossier de destination 
-        /// 
+        /// export les dpr dans une directory custom au besoin
         /// </summary>
         /// <param name="iquote">iquotye a transferer</param>
         /// <param name="CustomDestinationPath">Laisser vide si pas de necessité ; chemin de copie vers un autre dossier (besoin oxytemps pour les fichier dpr par exemple) </param>
@@ -429,9 +429,12 @@ namespace AF_Export_Devis_Clipper
                             if (string.IsNullOrEmpty(CustomDestinationPath)) { filelist.Add(partname, pathtofile); }
                             else
                             {
+                                ///on pourrait ne rine fair si le fichier exist deja
                                 if (Directory.Exists(CustomDestinationPath) & File.Exists(pathtofile))
                                 {
-                                    File.Copy(pathtofile, CustomDestinationPath + "\\" + Path.GetFileName(pathtofile));
+                                    File.Copy(pathtofile, CustomDestinationPath + "\\" + Path.GetFileName(pathtofile),false);
+                                    //on met a jour la liste avecle custom path
+                                    filelist.Add(partname, CustomDestinationPath + "\\" + Path.GetFileName(pathtofile));
                                 }
                             }
 
@@ -478,7 +481,7 @@ namespace AF_Export_Devis_Clipper
                 string ExportDirectory="";
                 //verification de l'integrité des données
                 //preparing export
-                //check_database_Integerity
+                
                 Validate_Context(Context);
                 //creation des directory
                 PrepareExportDirectory(Context);
@@ -744,7 +747,7 @@ namespace AF_Export_Devis_Clipper
         }
 
 
-       
+
 
 
 
@@ -758,27 +761,33 @@ namespace AF_Export_Devis_Clipper
                 paymentRule = EmptyString(paymentRuleEntity.GetFieldValueAsString("_EXTERNAL_ID")).ToUpper();
 
 
-            #region observation piece
+            #region observation piece et ensemble
 
-
+            string internal_comment = string.Empty;
+            string external_comment = string.Empty;
+            /*
             foreach (IEntity partEntity in quote.QuotePartList)
             {
                 long partQty = 0;
                 partQty = partEntity.GetFieldValueAsLong("_PART_QUANTITY");
+                string internal_comment = string.Empty;
+                string external_comment = string.Empty ;
 
                 if (partQty > 0)
                 {
+                    internal_comment = FormatComment(EmptyString(quoteEntity.GetFieldValueAsString("_COMMENTS")));
+
+                    if (!string.IsNullOrEmpty(internal_comment))
+                    { 
+
                     long i = 0;
                     string[] data = new string[50];
                     string reference = null;
                     string modele = null;
-                    string internal_comment="";
-                    string external_comment = "";
                     GetReference(partEntity, "PART", true, out reference, out modele);
 
 
-                    internal_comment = FormatComment(EmptyString(quoteEntity.GetFieldValueAsString("_COMMENTS")));
-
+                 
                     data[i++] = "OBSDEVIS";
                     data[i++] = internal_comment; //Observation interne
                     data[i++] = external_comment; //Observation client
@@ -791,24 +800,16 @@ namespace AF_Export_Devis_Clipper
                     data[i++] = "";//Modele de gamme
 
                     WriteData(data, i, ref file);
+                    }
+
                 }
             }
-
-
-
-
-
-
-
-
-
-
+            */
 
             #endregion
 
 
-            #region Offre pièces
-
+            #region Offre pièces/observations
             foreach (IEntity partEntity in quote.QuotePartList)
             {
                 long partQty = 0;
@@ -820,6 +821,7 @@ namespace AF_Export_Devis_Clipper
                     string[] data = new string[50];
                     string reference = null;
                     string modele = null;
+
                     GetReference(partEntity, "PART", true, out reference, out modele);
 
                     data[i++] = "OFFRE";
@@ -853,106 +855,177 @@ namespace AF_Export_Devis_Clipper
                     data[i++] = modele; //Modèle
                     data[i++] = "1"; //Imprimable
                     WriteData(data, i, ref file);
+
+                    ////observations
+
+                    internal_comment = FormatComment(EmptyString(partEntity.GetFieldValueAsString("_COMMENTS")));
+
+                    if (!string.IsNullOrEmpty(internal_comment))
+                    {
+
+                        long iobs = 0;
+                        string[] dataobs = new string[50];
+                        //string referenceobs = null;
+                        //string modeleobs = null;
+                        //GetReference(partEntity, "PART", true, out reference, out modele);
+
+                        dataobs[iobs++] = "OBSDEVIS";
+                        dataobs[iobs++] = internal_comment; //Observation interne
+                        dataobs[iobs++] = external_comment; //Observation client
+                        dataobs[iobs++] = ""; // Conditions de règlement
+                        dataobs[iobs++] = GetQuoteNumber(quoteEntity);//N° devis
+                        dataobs[iobs++] = reference;//Code pièce
+                        dataobs[iobs++] = "";//Ordre d'impression
+                        dataobs[iobs++] = "";//Cycle de fab
+                        dataobs[iobs++] = "";//Code activitée de la pièce
+                        dataobs[iobs++] = "";//Modele de gamme
+
+                        WriteData(dataobs, iobs, ref file);
+
+
+                    }
                 }
+
+                #endregion
+
+
             }
-
             #endregion
-
-
-
 
             #region Offre Ensembles
+            /*
+            foreach (IEntity setEntity in quote.QuoteSetList)
+                {
+                    //// OBSERVATION DE DEVIS PAR ENSEMBLE
+                    // long partQty = 0;
+                    long qty = setEntity.GetFieldValueAsLong("_QUANTITY");
+
+                    if (qty > 0)
+                    {
+                        long i = 0;
+                        string[] data = new string[50];
+                        string reference = null;
+                        string modele = null;
+                        GetReference(setEntity, "SET", true, out reference, out modele);
+
+                        //commentaires
+                        external_comment = "";  //
+                        internal_comment = FormatComment(EmptyString(setEntity.GetFieldValueAsString("_COMMENTS"))); //commentaires internes des devis
+
+
+                        data[i++] = "OBSDEVIS";
+                        data[i++] = external_comment; //Observation interne
+                        data[i++] = internal_comment;// EmptyString(setEntity.GetFieldValueAsString("_COMMENTS")); //Observation client
+                        data[i++] = ""; // Conditions de règlement
+                        data[i++] = GetQuoteNumber(quoteEntity);//N° devis
+                        data[i++] = reference;//Code pièce
+                        data[i++] = "";//Ordre d'impression
+                        data[i++] = "";//Cycle de fab
+                        data[i++] = "";//Code activitée de la pièce
+                        data[i++] = "";//Modele de gamme
+                        WriteData(data, i, ref file);
+                    }
+
+
+
+                }*/
+
+
             foreach (IEntity setEntity in quote.QuoteSetList)
             {
-                //// OBSERVATION DE DEVIS PAR ENSEMBLE
-                // long partQty = 0;
-                long qty = setEntity.GetFieldValueAsLong("_QUANTITY");
 
-                if (qty > 0)
-                {
-                    long i = 0;
-                    string[] data = new string[50];
-                    string reference = null;
-                    string modele = null;
-                    GetReference(setEntity, "SET", true, out reference, out modele);
-
-                    //commentaires
-                    string external_comment = "";  //
-                    string internal_comment = FormatComment(EmptyString(setEntity.GetFieldValueAsString("_COMMENTS"))); //commentaires internes des devis
+                    // long partQty = 0;
+                    long qty = setEntity.GetFieldValueAsLong("_QUANTITY");
 
 
-                    data[i++] = "OBSDEVIS";
-                    data[i++] = external_comment; //Observation interne
-                    data[i++] = internal_comment;// EmptyString(setEntity.GetFieldValueAsString("_COMMENTS")); //Observation client
-                    data[i++] = ""; // Conditions de règlement
-                    data[i++] = GetQuoteNumber(quoteEntity);//N° devis
-                    data[i++] = reference;//Code pièce
-                    data[i++] = "";//Ordre d'impression
-                    data[i++] = "";//Cycle de fab
-                    data[i++] = "";//Code activitée de la pièce
-                    data[i++] = "";//Modele de gamme
-                    WriteData(data, i, ref file);
-                }
-
-                
-               
-            }
-            foreach (IEntity setEntity in quote.QuoteSetList)
-            {
-                
-               // long partQty = 0;
-                long qty = setEntity.GetFieldValueAsLong("_QUANTITY");
-
-               
-                if (qty > 0)
-                {
-                    long i = 0;
-                    string[] data = new string[50];
-                    string reference = null;
-                    string modele = null;
-                    GetReference(setEntity, "SET", true, out reference, out modele);
-
-                    double totalPartCost = 0;
-                    data[i++] = "OFFRE";
-                    data[i++] = reference; //Code pièce
-                    data[i++] = GetQuoteNumber(quoteEntity); //N° devis
-                    data[i++] = qty.ToString(formatProvider); //Qté offre
-
-                    double cost = setEntity.GetFieldValueAsDouble("_CORRECTED_FRANCO_UNIT_COST") - totalPartCost;
-                    data[i++] = cost.ToString("#0.0000", formatProvider); //Prix de revient
-                    data[i++] = cost.ToString("#0.0000", formatProvider); //Prix brut
-                    data[i++] = cost.ToString("#0.0000", formatProvider); //Prix de vente
-                    data[i++] = cost.ToString("#0.0000", formatProvider); //Prix dans la monnaie
-                    data[i++] = "1"; //N° de ligne "Offre"
-                    IField field;
-                    if (quoteEntity.EntityType.TryGetField("_DELIVERY_DATE", out field))
+                    if (qty > 0)
                     {
-                        data[i++] = GetFieldDate(quoteEntity, "_DELIVERY_DATE"); //Nb délai
-                        data[i++] = "4"; //Type délai 1=jour 4=date
-                    }
-                    else
-                    {
-                        data[i++] = "0"; //Nb délai
-                        data[i++] = "1"; //Type délai 1=jour 4=date
-                    }
-                    data[i++] = "1"; //Unité de prix
-                    data[i++] = "0"; //Remise 1
-                    data[i++] = "0"; //Remise 2
-                    data[i++] = paymentRule; //Code de reglement
-                    data[i++] = CreateTransFile.GetTransport(quoteEntity); //Port
-                    data[i++] = modele; //Modèle
-                    data[i++] = "1"; //Imprimable
-                    WriteData(data, i, ref file);
-                }
-            }
+                        long i = 0;
+                        string[] data = new string[50];
+                        string reference = null;
+                        string modele = null;
+                        GetReference(setEntity, "SET", true, out reference, out modele);
 
+                        double totalPartCost = 0;
+                        data[i++] = "OFFRE";
+                        data[i++] = reference; //Code pièce
+                        data[i++] = GetQuoteNumber(quoteEntity); //N° devis
+                        data[i++] = qty.ToString(formatProvider); //Qté offre
+
+                        double cost = setEntity.GetFieldValueAsDouble("_CORRECTED_FRANCO_UNIT_COST") - totalPartCost;
+                        data[i++] = cost.ToString("#0.0000", formatProvider); //Prix de revient
+                        data[i++] = cost.ToString("#0.0000", formatProvider); //Prix brut
+                        data[i++] = cost.ToString("#0.0000", formatProvider); //Prix de vente
+                        data[i++] = cost.ToString("#0.0000", formatProvider); //Prix dans la monnaie
+                        data[i++] = "1"; //N° de ligne "Offre"
+                        IField field;
+                        if (quoteEntity.EntityType.TryGetField("_DELIVERY_DATE", out field))
+                        {
+                            data[i++] = GetFieldDate(quoteEntity, "_DELIVERY_DATE"); //Nb délai
+                            data[i++] = "4"; //Type délai 1=jour 4=date
+                        }
+                        else
+                        {
+                            data[i++] = "0"; //Nb délai
+                            data[i++] = "1"; //Type délai 1=jour 4=date
+                        }
+                        data[i++] = "1"; //Unité de prix
+                        data[i++] = "0"; //Remise 1
+                        data[i++] = "0"; //Remise 2
+                        data[i++] = paymentRule; //Code de reglement
+                        data[i++] = CreateTransFile.GetTransport(quoteEntity); //Port
+                        data[i++] = modele; //Modèle
+                        data[i++] = "1"; //Imprimable
+                        WriteData(data, i, ref file);
+
+
+                    //// OBSERVATION DE DEVIS PAR ENSEMBLE
+                    // long partQty = 0;
+                    //long qty = setEntity.GetFieldValueAsLong("_QUANTITY");
+
+                    if (qty > 0)
+                    {
+                        long iobs = 0;
+                        string[] dataobs = new string[50];
+                        //string reference = null;
+                        //string modele = null;
+                        //GetReference(setEntity, "SET", true, out reference, out modele);
+
+                        //commentaires
+                        external_comment = "";  //
+                        internal_comment = FormatComment(EmptyString(setEntity.GetFieldValueAsString("_COMMENTS"))); //commentaires internes des devis
+
+
+                        dataobs[iobs++] = "OBSDEVIS";
+                        dataobs[iobs++] = external_comment; //Observation interne
+                        dataobs[iobs++] = internal_comment;// EmptyString(setEntity.GetFieldValueAsString("_COMMENTS")); //Observation client
+                        dataobs[iobs++] = ""; // Conditions de règlement
+                        dataobs[iobs++] = GetQuoteNumber(quoteEntity);//N° devis
+                        dataobs[iobs++] = reference;//Code pièce
+                        dataobs[iobs++] = "";//Ordre d'impression
+                        dataobs[iobs++] = "";//Cycle de fab
+                        dataobs[iobs++] = "";//Code activitée de la pièce
+                        dataobs[iobs++] = "";//Modele de gamme
+                        WriteData(dataobs, iobs, ref file);
+
+
+                    }
+
+                    }
+                }
             #endregion
 
-            if (quote.QuoteEntity.GetFieldValueAsLong("_TRANSPORT_PAYMENT_MODE") == 1) // Transport facturé
-                Transport(ref file, quote, formatProvider, true, "001", "PORT", "0");
+                if (quote.QuoteEntity.GetFieldValueAsLong("_TRANSPORT_PAYMENT_MODE") == 1) // Transport facturé
+                    Transport(ref file, quote, formatProvider, true, "001", "PORT", "0");
 
-            GlobalItem(ref file, quote, formatProvider, true, "001", "GLOBAL", "0");
+                GlobalItem(ref file, quote, formatProvider, true, "001", "GLOBAL", "0");
+            
         }
+
+
+
+
+
 
         private void Transport(ref string file, IQuote quote, NumberFormatInfo formatProvider, bool doOffre, string rang, string reference, string modele)
         {
@@ -1302,11 +1375,14 @@ namespace AF_Export_Devis_Clipper
             //string dpr_directory = quote.Context.ParameterSetManager.GetParameterValue("_EXPORT", "_ACTCUT_DPR_DIRECTORY").GetValueAsString();
 
             //create dpr and directory
+            
+            //obsolete fait par le getDrpPart
+            /*
             _PathList.TryGetValue("Export_DPR_Directory", out string dpr_directory);
             if (!string.IsNullOrEmpty(dpr_directory)) { 
             Dictionary<string, string> filelist = ExportDprFiles(quote, dpr_directory);//AF_Export_Devis_Clipper.Export_Quote_Files.Export(quote);
             }
-
+            */
 
             foreach (IEntity partEntity in quote.QuotePartList)
             {
@@ -1374,118 +1450,123 @@ namespace AF_Export_Devis_Clipper
                     data[i++] = "0"; //N° identifiant GED 9
                     data[i++] = "0"; //N° identifiant GED 10
 
-                  
-                    ///on laisse pour le moment
                     ///
-                    string assistantType = partEntity.GetFieldValueAsString("_ASSISTANT_TYPE");
-                    string partFileName = partEntity.GetFieldValueAsString("_FILENAME");
-
-                   
-                    //ATTENTION LES GENERATION DES DPR DEPEND DE LA LICENCE/ IL FAUT UNE QUOTE CUT 
-                    //SINON IL S4AGIT DE PIECES ALMACAM
-                    //
-                    string emfFile = "";
-
-                    bool isGenericDpr = false;
-                    if (assistantType.Contains("GenericEditAssistant"))
-                    {
-                        if (string.IsNullOrEmpty(partFileName) == false)
-                        {
-                            if (partFileName.EndsWith(".dpr", StringComparison.InvariantCultureIgnoreCase))
-                            {
-                                isGenericDpr = true;
-                            }
-                        }
-                    }
-
-                    
-
-                    
-                    
-                    {
-                      
-                       if (!string.IsNullOrEmpty(dpr_directory)) { 
-                            
-                            string empty_emfFile;
-
-                            //cas général
-                            emfFile = partEntity.GetFieldValueAsString("_DPR_FILENAME") + ".emf";
-                            //emfFile vide
-                            empty_emfFile = dpr_directory + "\\" + "Quote_" + quote.QuoteEntity.Id + "\\"+ partEntity.GetFieldValueAsString("_REFERENCE")+".dpr.emf"; // + Path.GetFileName(partEntity.GetImageFieldValueAsLinkFile("_PREVIEW"));
-                            //cas general
-                             emfFile = GetEmfFile(partEntity, empty_emfFile);
-
-                           
-                            if (assistantType.Contains("DprAssistant") || isGenericDpr)
-                            {
-                                                         
-                                emfFile = partEntity.GetFieldValueAsString("_FILENAME")+ ".emf";
-                               
-                            }
-                            
-                            //traitement spé
-                            //cas des pieces simples//
-                            else if (assistantType.Contains("PluggedSimpleAssistantEx")) {
-                                //creation du point rouge dans l'emf : signature des apercus de peices quotes
-                                Sign_quote_Emf(emfFile);                               
-                            }
+                    /// a supprimer apres 2 mois d'instal/
+                    /*
+                      ///on laisse pour le moment
+                      ///
+                      string assistantType = partEntity.GetFieldValueAsString("_ASSISTANT_TYPE");
+                      string partFileName = partEntity.GetFieldValueAsString("_FILENAME");
 
 
-                            //PluggedSketchAssistant
-                            else if (assistantType.Contains("PluggedSketchAssistant"))
-                            {
-                                //creation du point rouge dans l'emf : signature des apercus de peices quotes
-                                Sign_quote_Emf(emfFile);
-                              
-                            }
-                            //PluggedGeometryAssistant
-                            else if (assistantType.Contains("PluggedGeometryAssistant"))
-                            {
-                                //creation du point rouge dans l'emf : signature des apercus de peices quotes
-                                Sign_quote_Emf(emfFile);
-                              
-                            }
-                            //PluggedDplAssistant
-                            else if (assistantType.Contains("PluggedDplAssistan"))
-                            {   //creation du point rouge dans l'emf : signature des apercus de peices quotes
-                                Sign_quote_Emf(emfFile);
-                               
-                            }
+                      //ATTENTION LES GENERATION DES DPR DEPEND DE LA LICENCE/ IL FAUT UNE QUOTE CUT 
+                      //SINON IL S4AGIT DE PIECES ALMACAM
+                      //
+                      string emfFile = "";
 
-                            //PluggedDxfAssistant
-                            else if (assistantType.Contains("PluggedDxfAssistant"))
-                            {   //creation du point rouge dans l'emf : signature des apercus de peices quotes
-                                Sign_quote_Emf(emfFile);
-                                
-
-                            }
-
-                            
-                            else
-                            {  //creation du point rouge dans l'emf : signature des apercus de peices quotes
-                                Sign_quote_Emf(emfFile);
-                               
-                            }
-                            
+                      bool isGenericDpr = false;
+                      if (assistantType.Contains("GenericEditAssistant"))
+                      {
+                          if (string.IsNullOrEmpty(partFileName) == false)
+                          {
+                              if (partFileName.EndsWith(".dpr", StringComparison.InvariantCultureIgnoreCase))
+                              {
+                                  isGenericDpr = true;
+                              }
+                          }
+                      }
 
 
 
 
 
+                      {
+
+                         if (!string.IsNullOrEmpty(dpr_directory)) { 
+
+                              string empty_emfFile;
+
+                              //cas général
+                              emfFile = partEntity.GetFieldValueAsString("_DPR_FILENAME") + ".emf";
+                              //emfFile vide
+                              empty_emfFile = dpr_directory + "\\" + "Quote_" + quote.QuoteEntity.Id + "\\"+ partEntity.GetFieldValueAsString("_REFERENCE")+".dpr.emf"; // + Path.GetFileName(partEntity.GetImageFieldValueAsLinkFile("_PREVIEW"));
+                              //cas general
+                               emfFile = GetEmfFile(partEntity, empty_emfFile);
+
+
+                              if (assistantType.Contains("DprAssistant") || isGenericDpr)
+                              {
+
+                                  emfFile = partEntity.GetFieldValueAsString("_FILENAME")+ ".emf";
+
+                              }
+
+                              //traitement spé
+                              //cas des pieces simples//
+                              else if (assistantType.Contains("PluggedSimpleAssistantEx")) {
+                                  //creation du point rouge dans l'emf : signature des apercus de peices quotes
+                                  Sign_quote_Emf(emfFile);                               
+                              }
+
+
+                              //PluggedSketchAssistant
+                              else if (assistantType.Contains("PluggedSketchAssistant"))
+                              {
+                                  //creation du point rouge dans l'emf : signature des apercus de peices quotes
+                                  Sign_quote_Emf(emfFile);
+
+                              }
+                              //PluggedGeometryAssistant
+                              else if (assistantType.Contains("PluggedGeometryAssistant"))
+                              {
+                                  //creation du point rouge dans l'emf : signature des apercus de peices quotes
+                                  Sign_quote_Emf(emfFile);
+
+                              }
+                              //PluggedDplAssistant
+                              else if (assistantType.Contains("PluggedDplAssistan"))
+                              {   //creation du point rouge dans l'emf : signature des apercus de peices quotes
+                                  Sign_quote_Emf(emfFile);
+
+                              }
+
+                              //PluggedDxfAssistant
+                              else if (assistantType.Contains("PluggedDxfAssistant"))
+                              {   //creation du point rouge dans l'emf : signature des apercus de peices quotes
+                                  Sign_quote_Emf(emfFile);
+
+
+                              }
+
+
+                              else
+                              {  //creation du point rouge dans l'emf : signature des apercus de peices quotes
+                                  Sign_quote_Emf(emfFile);
+
+                              }
 
 
 
-                        }
-                        else
-                        {
-                            emfFile=partEntity.GetImageFieldValueAsLinkFile("_PREVIEW");
-                        }
 
-                        if (emfFile != null)
-                            data[i++] = emfFile; //Fichier joint
-                        else
-                            data[i++] = ""; //Fichier joint
-                    }
+
+
+
+
+
+                          }
+                          else
+                          {
+                              emfFile=partEntity.GetImageFieldValueAsLinkFile("_PREVIEW");
+                          }
+
+                          if (emfFile != null)
+                              data[i++] = emfFile; //Fichier joint
+                          else
+                              data[i++] = ""; //Fichier joint
+                      }*/
+
+
+                    data[i++] = GetDprPath(partEntity, quote);
                     data[i++] = ""; //Date d'injection
                     data[i++] = partModele; //Modèle
                     data[i++] = ""; //Employé responsable                
@@ -1575,89 +1656,7 @@ namespace AF_Export_Devis_Clipper
             
 
         }
-        /// <summary>
-            /// creer les liens emf dans le fichier clipper
-            /// </summary>
-            /// <param name="partEntity">part exportté</param>
-            /// <param name="empty_emfFile">liens vide si besoin</param>
-            /// <returns></returns>
-            private string GetEmfFile(IEntity partEntity, string empty_emfFile)
-        {
-            try
-            {
-                string emfFile = "";
-               
-                //cas général
-                emfFile = partEntity.GetFieldValueAsString("_DPR_FILENAME") + ".emf";
-                
-                
-                if (string.IsNullOrEmpty(partEntity.GetFieldValueAsString("_DPR_FILENAME")) == false)
-                {
-                    emfFile = partEntity.GetFieldValueAsString("_DPR_FILENAME") + ".emf";
-                }
-                else if (string.IsNullOrEmpty(partEntity.GetFieldValueAsString("_FILENAME")) == false)
-                {
-                    emfFile = partEntity.GetFieldValueAsString("_FILENAME") + ".emf";
-                }
-                else
-                {
-                    emfFile = empty_emfFile;
-                    CreateEmptyDpr(emfFile.Replace(".emf", ".dpr"));
-                    CreateEmptyEmf(emfFile.Replace(".emf", ".dpr.emf"));
-
-                }
-
-
-
-
-                return emfFile;
-
-
-
-            }
-            catch (Exception ie) { MessageBox.Show(ie.Message); return ""; };
-        }
-
-        private void CreateEmptyDpr(string filePath)
-        {
-            using (System.IO.StreamWriter file =new System.IO.StreamWriter(@filePath))
-            {
-                file.WriteLine("/ DPR 4.0 R 1");
-                file.WriteLine("/ HEADER");
-                file.WriteLine("$UNIT = 1");
-                file.WriteLine("$THICK = 0");
-                file.WriteLine("$ANGLE = 0");
-                file.WriteLine("$SYMX = 0");
-                file.WriteLine("$SYMY = 0");
-                file.WriteLine("$SURFACE = 0");
-                file.WriteLine("$SURFEXT = 0");
-                file.WriteLine("$PERIMET = 0");
-                file.WriteLine("$ATTACHSTD = 0");
-                file.WriteLine("$COVERSTD = 0");
-                file.WriteLine("$WORKONSTD = 0");
-                file.WriteLine("$GRAVITY = 0 0");
-                file.WriteLine("$DIMENS = 0 0");
-                file.WriteLine("$LIMIT = 0 0 0 0 0 0 0 0");
-                file.WriteLine("$MATERIAL =");
-
-                file.Close();
-            }
-        }
-
-        // Return a metafile with the indicated size.
-        private void CreateEmptyEmf(string filename)
-        {
-            using (var bitmap = new Bitmap(100, 100))
-            {
-                Bitmap bmp = new Bitmap(78, 78);
-                using (Graphics gr = Graphics.FromImage(bmp))
-                {
-                    gr.Clear(Color.FromKnownColor(KnownColor.Window));
-                    
-                }
-                bmp.Save(@filename);
-            }
-        }
+       
         private void QuoteSet(ref string file, IQuote quote, string rang, NumberFormatInfo formatProvider)
         {
             IEntity quoteEntity = quote.QuoteEntity;
@@ -1749,6 +1748,9 @@ namespace AF_Export_Devis_Clipper
                 }
             }
         }
+
+
+
         private void QuoteSetPart(ref string file, IQuote quote, IEntity setEntity, IEntity partEntity, long partSetQty, string rang, NumberFormatInfo formatProvider)
         {
             IEntity quoteEntity = quote.QuoteEntity;
@@ -1808,7 +1810,8 @@ namespace AF_Export_Devis_Clipper
                 data[i++] = "0"; //N° identifiant GED 8
                 data[i++] = "0"; //N° identifiant GED  9
                 data[i++] = "0"; //N° identifiant GED 10
-                data[i++] = ""; //Fichier joint
+                //data[i++] = ""; //Fichier joint
+                data[i++] = GetDprPath(partEntity, quote);
                 data[i++] = ""; //Date d'injection
                 data[i++] = setModele; //Modèle
                 data[i++] = ""; //Employé responsable                
@@ -1829,6 +1832,150 @@ namespace AF_Export_Devis_Clipper
                 QuoteOperation(ref file, quote, partEntity, partOperationList, rang, formatProvider, partSetQty, partSetQty, ref gaDevisPhase, ref nomendvPhase, setReference, setModele, materialPrice);
             }
         }
+
+
+
+
+        #region gestion des emf/dpr
+                    /// <summary>
+                    /// creer les liens emf dans le fichier clipper
+                    /// creer un dpr vide  en cas de nom envoie du fichier dpr
+                    /// </summary>
+                    /// <param name="partEntity">part exporté</param>
+                    /// <param name="empty_emfFile">liens vide si besoin</param>
+                    /// <returns></returns>
+                    private string GetEmfFile(IEntity partEntity, string empty_emfFile)
+                    {
+                        try
+                        {
+                            string emfFile = "";
+
+                            //cas général
+                            emfFile = partEntity.GetFieldValueAsString("_DPR_FILENAME") + ".emf";
+
+
+                            if (string.IsNullOrEmpty(partEntity.GetFieldValueAsString("_DPR_FILENAME")) == false)
+                            {
+                                emfFile = partEntity.GetFieldValueAsString("_DPR_FILENAME") + ".emf";
+                            }
+                            else if (string.IsNullOrEmpty(partEntity.GetFieldValueAsString("_FILENAME")) == false)
+                            {
+                                emfFile = partEntity.GetFieldValueAsString("_FILENAME") + ".emf";
+                            }
+                            else
+                            {
+                                emfFile = empty_emfFile;
+                                //CreateEmptyDpr(emfFile.Replace(".emf", ".dpr"));
+                                string matiere = partEntity.GetFieldValueAsEntity("_MATERIAL").GetFieldValueAsEntity("_QUALITY").GetFieldValueAsString("_NAME");
+                                string thickness = partEntity.GetFieldValueAsLong("_THICKNESS").ToString();
+
+                                CreateEmptyDprWithThickness(emfFile.Replace(".emf", ".dpr"), matiere, thickness);
+                                CreateEmptyEmf(emfFile.Replace(".emf", ".dpr.emf"));
+
+                            }
+
+
+
+
+                            return emfFile;
+
+
+
+                        }
+                        catch (Exception ie) { MessageBox.Show(ie.Message); return ""; };
+                    }
+
+                    [Obsolete("Use CreateEmptyDprWithThickness")]
+                    /// cette fonction creer un emf vide sans control de la matiere et de l'epaisseur
+                    private void CreateEmptyDpr(string filePath)
+                    {
+                        using (System.IO.StreamWriter file = new System.IO.StreamWriter(@filePath))
+                        {
+                            file.WriteLine("/ DPR 4.0 R 1");
+                            file.WriteLine("/ HEADER");
+                            file.WriteLine("$UNIT = 1");
+                            file.WriteLine("$THICK = 0");///on pourrait ajouter l'epaisseur 
+                            file.WriteLine("$ANGLE = 0");
+                            file.WriteLine("$SYMX = 0");
+                            file.WriteLine("$SYMY = 0");
+                            file.WriteLine("$SURFACE = 0");
+                            file.WriteLine("$SURFEXT = 0");
+                            file.WriteLine("$PERIMET = 0");
+                            file.WriteLine("$ATTACHSTD = 0");
+                            file.WriteLine("$COVERSTD = 0");
+                            file.WriteLine("$WORKONSTD = 0");
+                            file.WriteLine("$GRAVITY = 0 0");
+                            file.WriteLine("$DIMENS = 0 0");
+                            file.WriteLine("$LIMIT = 0 0 0 0 0 0 0 0");
+                            file.WriteLine("$MATERIAL =");///on pourrait ajouter l'epaisseur 
+
+                            file.Close();
+                        }
+                    }
+
+                    /// <summary>
+                    /// creer un dpr vide avec la bonne matiere paramétree et la bonne epaisseur
+                    /// </summary>
+                    /// <param name="filePath"></param>
+                    /// <param name="Matiere"></param>
+                    /// <param name="epaisseur"></param>
+                    private void CreateEmptyDprWithThickness(string filePath, string Matiere, string epaisseur)
+                    {
+                        try
+                        {
+                            //creation du dossier
+                            CreateDirectory(Path.GetDirectoryName(filePath));
+                            using (System.IO.StreamWriter file = new System.IO.StreamWriter(@filePath))
+                            {
+
+
+                                //remplacement chaine vide
+
+                                if (String.IsNullOrEmpty(Matiere)) { Matiere = ""; }
+                                if (String.IsNullOrEmpty(epaisseur)) { epaisseur = "0"; }
+
+                                file.WriteLine("/ DPR 4.0 R 1");
+                                file.WriteLine("/ HEADER");
+                                file.WriteLine("$UNIT = 1");
+                                file.WriteLine("$THICK = " + epaisseur);///on pourrait ajouter l'epaisseur 
+                                file.WriteLine("$ANGLE = 0");
+                                file.WriteLine("$SYMX = 0");
+                                file.WriteLine("$SYMY = 0");
+                                file.WriteLine("$SURFACE = 0");
+                                file.WriteLine("$SURFEXT = 0");
+                                file.WriteLine("$PERIMET = 0");
+                                file.WriteLine("$ATTACHSTD = 0");
+                                file.WriteLine("$COVERSTD = 0");
+                                file.WriteLine("$WORKONSTD = 0");
+                                file.WriteLine("$GRAVITY = 0 0");
+                                file.WriteLine("$DIMENS = 0 0");
+                                file.WriteLine("$LIMIT = 0 0 0 0 0 0 0 0");
+                                file.WriteLine("$MATERIAL = " + Matiere);
+
+                                file.Close();
+                            }
+
+                        }
+
+                        catch (Exception ie) { MessageBox.Show(ie.Message, "creation d'un dpr vide impossible"); }
+
+                    }
+                    // Return a metafile with the indicated size.
+                    private void CreateEmptyEmf(string filename)
+                    {
+                        using (var bitmap = new Bitmap(100, 100))
+                        {
+                            Bitmap bmp = new Bitmap(78, 78);
+                            using (Graphics gr = Graphics.FromImage(bmp))
+                            {
+                                gr.Clear(Color.FromKnownColor(KnownColor.Window));
+
+                            }
+                            bmp.Save(@filename);
+                        }
+                    }
+
+        #endregion
 
         private class GroupedCutOperation
         {
@@ -2481,6 +2628,141 @@ namespace AF_Export_Devis_Clipper
             return (quoteEntity.GetFieldValueAsLong("_INC_NO") + offset).ToString();
         }
 
+
+
+        private string GetDprPath(IEntity partEntity, IQuote quote)
+        {
+            try {
+
+                //create dpr and directory
+                _PathList.TryGetValue("Export_DPR_Directory", out string dpr_directory);
+                _PathList.TryGetValue("Custom_Export_DPR_Directory", out string Custom_dpr_directory);
+
+                if (!string.IsNullOrEmpty(dpr_directory))
+                {
+                    // Dictionary<string, string> filelist = ExportDprFiles(quote, dpr_directory);//AF_Export_Devis_Clipper.Export_Quote_Files.Export(quote);
+                    Dictionary<string, string> filelist = ExportDprFiles(quote, Custom_dpr_directory);//AF_Export_Devis_Clipper.Export_Quote_Files.Export(quote);
+
+                }
+
+
+                ///on laisse pour le moment
+                ///
+                string assistantType = partEntity.GetFieldValueAsString("_ASSISTANT_TYPE");
+                string partFileName = partEntity.GetFieldValueAsString("_FILENAME");
+
+
+                //ATTENTION LES GENERATION DES DPR DEPEND DE LA LICENCE/ IL FAUT UNE QUOTE CUT 
+                //SINON IL S4AGIT DE PIECES ALMACAM
+                //recuperation des emf par defaut
+                string emfFile = "";
+                bool isGenericDpr = false;
+                if (assistantType.Contains("GenericEditAssistant"))
+                {
+                    if (string.IsNullOrEmpty(partFileName) == false)
+                    {
+                        if (partFileName.EndsWith(".dpr", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            isGenericDpr = true;
+                        }
+                    }
+                }
+
+                //recuperation et construction du chemin des parts
+
+                {
+
+                    if (!string.IsNullOrEmpty(dpr_directory))
+                    {
+
+                        string empty_emfFile;
+
+                        //cas général
+                        emfFile = partEntity.GetFieldValueAsString("_DPR_FILENAME") + ".emf";
+                        //emfFile vide
+                        empty_emfFile = dpr_directory + "\\" + "Quote_" + quote.QuoteEntity.Id + "\\" + partEntity.GetFieldValueAsString("_REFERENCE") + ".dpr.emf"; // + Path.GetFileName(partEntity.GetImageFieldValueAsLinkFile("_PREVIEW"));
+                                                                                                                                                                     //cas general
+                        emfFile = GetEmfFile(partEntity, empty_emfFile);
+
+                        /// piece dpr existantes passées par l'assistant dpr
+                        if (assistantType.Contains("DprAssistant") || isGenericDpr)
+                        {
+
+                            emfFile = partEntity.GetFieldValueAsString("_FILENAME") + ".emf";
+
+                        }
+
+                        //traitement spé
+                        //cas des pieces simples//
+                        else if (assistantType.Contains("PluggedSimpleAssistantEx"))
+                        {
+                            //creation du point rouge dans l'emf : signature des apercus de pieces quotes
+                            Sign_quote_Emf(emfFile);
+                        }
+
+
+                        //PluggedSketchAssistant
+                        else if (assistantType.Contains("PluggedSketchAssistant"))
+                        {
+                            //creation du point rouge dans l'emf : signature des apercus de peices quotes
+                            Sign_quote_Emf(emfFile);
+
+                        }
+                        //PluggedGeometryAssistant
+                        else if (assistantType.Contains("PluggedGeometryAssistant"))
+                        {
+                            //creation du point rouge dans l'emf : signature des apercus de peices quotes
+                            Sign_quote_Emf(emfFile);
+
+                        }
+                        //PluggedDplAssistant
+                        else if (assistantType.Contains("PluggedDplAssistan"))
+                        {   //creation du point rouge dans l'emf : signature des apercus de peices quotes
+                            Sign_quote_Emf(emfFile);
+
+                        }
+
+                        //PluggedDxfAssistant
+                        else if (assistantType.Contains("PluggedDxfAssistant"))
+                        {   //creation du point rouge dans l'emf : signature des apercus de peices quotes
+                            Sign_quote_Emf(emfFile);
+
+
+                        }
+
+
+                        else
+                        {  //creation du point rouge dans l'emf : signature des apercus de peices quotes
+                            Sign_quote_Emf(emfFile);
+
+                        }
+
+
+
+
+
+
+
+
+
+                    }
+                    else
+                    {
+                        emfFile = partEntity.GetImageFieldValueAsLinkFile("_PREVIEW");
+                    }
+
+                    
+                }
+
+                return emfFile;
+                ///return string.Empty;
+
+
+
+            } catch (Exception ie) { return string.Empty; }
+
+
+        }
         #endregion
         
         # region Document
@@ -2595,7 +2877,7 @@ namespace AF_Export_Devis_Clipper
 
 
     }
-    #endregion
+   
     ///exception
     ///
     #region exception
