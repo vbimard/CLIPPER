@@ -65,6 +65,8 @@ namespace AF_Export_Devis_Clipper
 
                 bool dpr_exported = Actcut.QuoteModelManager.ExportDpr.ExportQuoteDpr(quote.Context, quote);
                 dpr_directory = quote.Context.ParameterSetManager.GetParameterValue("_EXPORT", "_ACTCUT_DPR_DIRECTORY").GetValueAsString();
+               
+
                 foreach (IEntity partEntity in iquote.QuotePartList)
                 {
                         if (dpr_exported)
@@ -979,17 +981,13 @@ namespace AF_Export_Devis_Clipper
                         WriteData(data, i, ref file);
 
 
-                    //// OBSERVATION DE DEVIS PAR ENSEMBLE
-                    // long partQty = 0;
-                    //long qty = setEntity.GetFieldValueAsLong("_QUANTITY");
+                    
 
                     if (qty > 0)
                     {
                         long iobs = 0;
                         string[] dataobs = new string[50];
-                        //string reference = null;
-                        //string modele = null;
-                        //GetReference(setEntity, "SET", true, out reference, out modele);
+               
 
                         //commentaires
                         external_comment = "";  //
@@ -1867,9 +1865,9 @@ namespace AF_Export_Devis_Clipper
                                 emfFile = empty_emfFile;
                                 //CreateEmptyDpr(emfFile.Replace(".emf", ".dpr"));
                                 string matiere = partEntity.GetFieldValueAsEntity("_MATERIAL").GetFieldValueAsEntity("_QUALITY").GetFieldValueAsString("_NAME");
-                                string thickness = partEntity.GetFieldValueAsLong("_THICKNESS").ToString();
+                                string thickness = partEntity.GetFieldValueAsEntity("_MATERIAL").GetFieldValueAsLong("_THICKNESS").ToString(); //partEntity.GetFieldValueAsLong("_THICKNESS").ToString();
 
-                                CreateEmptyDprWithThickness(emfFile.Replace(".emf", ".dpr"), matiere, thickness);
+                    CreateEmptyDprWithThickness(emfFile.Replace(".emf", ".dpr"), matiere, thickness);
                                 CreateEmptyEmf(emfFile.Replace(".emf", ".dpr.emf"));
 
                             }

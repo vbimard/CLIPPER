@@ -53,6 +53,9 @@ using System.IO;
             status.Text = "Generating Quot...";
             if (iquote.QuotePartList.Count()>0) { 
             AF_Export_Devis_Clipper.ExportQuote.ExportQuoteRequest(contextlocal, iquote);
+            linkemf.Text = quote.Context.ParameterSetManager.GetParameterValue("_EXPORT", "_ACTCUT_DPR_DIRECTORY").GetValueAsString();
+            linkquote.Text = quote.Context.ParameterSetManager.GetParameterValue("_EXPORT", "_EXPORT_GP_DIRECTORY").GetValueAsString();
+
                 status.Text = "Done";
 
             }
@@ -82,6 +85,16 @@ using System.IO;
             } 
 
             
+        }
+
+        private void linkquote_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            System.Diagnostics.Process.Start("explorer.exe " ,linkquote.Text);
+        }
+
+        private void linkemf_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            System.Diagnostics.Process.Start("explorer.exe ", linkemf.Text);
         }
 
 

@@ -33,6 +33,10 @@
             this.button1 = new System.Windows.Forms.Button();
             this.status = new System.Windows.Forms.Label();
             this.comboDataBaseList = new System.Windows.Forms.ComboBox();
+            this.linkquote = new System.Windows.Forms.LinkLabel();
+            this.linkemf = new System.Windows.Forms.LinkLabel();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // label1
@@ -79,11 +83,55 @@
             this.comboDataBaseList.Size = new System.Drawing.Size(281, 21);
             this.comboDataBaseList.TabIndex = 5;
             // 
+            // linkquote
+            // 
+            this.linkquote.AutoSize = true;
+            this.linkquote.Location = new System.Drawing.Point(55, 111);
+            this.linkquote.Name = "linkquote";
+            this.linkquote.Size = new System.Drawing.Size(45, 13);
+            this.linkquote.TabIndex = 7;
+            this.linkquote.TabStop = true;
+            this.linkquote.Text = "C:\\temp";
+            this.linkquote.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkquote_LinkClicked);
+            // 
+            // linkemf
+            // 
+            this.linkemf.AutoSize = true;
+            this.linkemf.Location = new System.Drawing.Point(55, 133);
+            this.linkemf.Name = "linkemf";
+            this.linkemf.Size = new System.Drawing.Size(45, 13);
+            this.linkemf.TabIndex = 8;
+            this.linkemf.TabStop = true;
+            this.linkemf.Text = "C:\\temp";
+            this.linkemf.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkemf_LinkClicked);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(12, 133);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(28, 13);
+            this.label2.TabIndex = 9;
+            this.label2.Text = "Emf:";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(12, 111);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(37, 13);
+            this.label3.TabIndex = 10;
+            this.label3.Text = "Devis:";
+            // 
             // Export_Form
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(398, 109);
+            this.ClientSize = new System.Drawing.Size(372, 172);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.linkemf);
+            this.Controls.Add(this.linkquote);
             this.Controls.Add(this.comboDataBaseList);
             this.Controls.Add(this.status);
             this.Controls.Add(this.button1);
@@ -104,6 +152,10 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Label status;
         private System.Windows.Forms.ComboBox comboDataBaseList;
+        private System.Windows.Forms.LinkLabel linkquote;
+        private System.Windows.Forms.LinkLabel linkemf;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label3;
     }
 }
 
