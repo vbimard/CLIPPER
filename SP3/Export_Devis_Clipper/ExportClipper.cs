@@ -1375,13 +1375,7 @@ namespace AF_Export_Devis_Clipper
             //create dpr and directory
             
             //obsolete fait par le getDrpPart
-            /*
-            _PathList.TryGetValue("Export_DPR_Directory", out string dpr_directory);
-            if (!string.IsNullOrEmpty(dpr_directory)) { 
-            Dictionary<string, string> filelist = ExportDprFiles(quote, dpr_directory);//AF_Export_Devis_Clipper.Export_Quote_Files.Export(quote);
-            }
-            */
-
+           
             foreach (IEntity partEntity in quote.QuotePartList)
             {
                 IEntity materialEntity = partEntity.GetFieldValueAsEntity("_MATERIAL");
@@ -1598,8 +1592,10 @@ namespace AF_Export_Devis_Clipper
 
 
 
-        //trace une ligne rouge ou un point rouge sur  les dpr issue de quote
-
+        /// <summary>
+        /// ajoute un point rouge sur l'emf généré par almacam
+        /// </summary>
+        /// <param name="empty_emfFile">fullpath vers l'emf</param>
         private void Sign_quote_Emf(string empty_emfFile)
         {
 
@@ -1654,7 +1650,14 @@ namespace AF_Export_Devis_Clipper
             
 
         }
-       
+
+        /// <summary>
+        /// cree les ensemble
+        /// </summary>
+        /// <param name="file">fichier texte de sortie des devis</param>
+        /// <param name="quote">devis en cours</param>
+        /// <param name="rang">rang - niveau dans l'ensemble</param>
+        /// <param name="formatProvider">nombre de chiffre apres la virgule</param>
         private void QuoteSet(ref string file, IQuote quote, string rang, NumberFormatInfo formatProvider)
         {
             IEntity quoteEntity = quote.QuoteEntity;
@@ -1746,9 +1749,17 @@ namespace AF_Export_Devis_Clipper
                 }
             }
         }
-
-
-
+        /// <summary>
+        /// edition des pieces d'ensemble
+        /// </summary>
+        /// <param name="file">fichier texte de sortie des devis</param>
+        /// <param name="quote">devis en cours</param>
+        /// <param name="setEntity"></param>
+        /// <param name="partEntity"></param>
+        /// <param name="partSetQty"></param>
+        /// <param name="rang">rang - niveau dans l'ensemble</param>
+        /// <param name="formatProvider">nombre de chiffre apres la virgule</param>
+        /// 
         private void QuoteSetPart(ref string file, IQuote quote, IEntity setEntity, IEntity partEntity, long partSetQty, string rang, NumberFormatInfo formatProvider)
         {
             IEntity quoteEntity = quote.QuoteEntity;
@@ -1830,9 +1841,6 @@ namespace AF_Export_Devis_Clipper
                 QuoteOperation(ref file, quote, partEntity, partOperationList, rang, formatProvider, partSetQty, partSetQty, ref gaDevisPhase, ref nomendvPhase, setReference, setModele, materialPrice);
             }
         }
-
-
-
 
         #region gestion des emf/dpr
                     /// <summary>
@@ -2348,6 +2356,21 @@ namespace AF_Export_Devis_Clipper
 
             #endregion
         }
+
+        /// <summary>
+        /// traitement des fournitures
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="quote"></param>
+        /// <param name="parentQty"></param>
+        /// <param name="supplyList"></param>
+        /// <param name="rang"></param>
+        /// <param name="gadevisPhase"></param>
+        /// <param name="nomendvPhase"></param>
+        /// <param name="formatProvider"></param>
+        /// <param name="includeHeader"></param>
+        /// <param name="reference"></param>
+        /// <param name="modele"></param>
         private void QuoteSupply(ref string file, IQuote quote, long parentQty, IEnumerable<IEntity> supplyList, string rang, ref long gadevisPhase, ref long nomendvPhase, NumberFormatInfo formatProvider, bool includeHeader, string reference, string modele)
         {
             IEntity quoteEntity = quote.QuoteEntity;
@@ -2400,7 +2423,10 @@ namespace AF_Export_Devis_Clipper
             {
                 IEntity supplyTypeEntity = supplyEntity.GetFieldValueAsEntity("_SUPPLY");
                 double doubleSupplyQty = supplyEntity.GetFieldValueAsDouble("_DOUBLE_QUANTITY");
-                long supplyQty = Convert.ToInt64(doubleSupplyQty);
+                
+                //long supplyQty = Convert.ToInt64(doubleSupplyQty);
+                //ecriture des quantité decimales
+                double supplyQty = Convert.ToDouble(doubleSupplyQty);
                 if (supplyQty > 0)
                 {
                     nomendvPhase = nomendvPhase + 10;

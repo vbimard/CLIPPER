@@ -523,7 +523,7 @@ namespace AF_Clipper_Dll
                 parametre_name = "IMPORT_AUTO";
                 //Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
                 //Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "IMPORT_AUTO").GetValueAsBoolean());                /**/
-                get_bool_Parameter_Dictionary_Value(context, parametersetkey, parametre_name, "", ref Parameters_Dictionnary, false);
+                Get_bool_Parameter_Dictionary_Value(context, parametersetkey, parametre_name, "", ref Parameters_Dictionnary, false);
 
                 parametre_name = "EMF_DIRECTORY";
                 //Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
@@ -618,10 +618,7 @@ namespace AF_Clipper_Dll
                 //verification des chemins
                 //tous les nouveaux paramétres doivent etre ajoutés ici pr ordre decroissant d ecreation (le dernier en bas)
                 parametre_name = "EXPLODE_MULTIPLICITY";
-                //Alma_Log.Info("recuperation du parametre " + parametre_name, "GetlistParam");
-                //Parameters_Dictionnary.Add(parametre_name, context.ParameterSetManager.GetParameterValue(parametersetkey, "EXPLODE_MULTIPLICITY").GetValueAsString());
-                //public static bool get_Bool_Parameter_Dictionary_Value(IContext contextlocal, string parametersetkey, string parameter_name, string parameterkeyname, ref Dictionary<string, object> parameters_dictionnary, bool defaultvalue)
-                get_bool_Parameter_Dictionary_Value(context, parametersetkey, parametre_name, "", ref Parameters_Dictionnary,false);
+                Get_bool_Parameter_Dictionary_Value(context, parametersetkey, parametre_name, "", ref Parameters_Dictionnary,false);
 
 
 
@@ -731,8 +728,9 @@ namespace AF_Clipper_Dll
         /// <param name="parameter_name">nom du parametre dans le dictionnaire</param>
         /// <param name="parameterkeyname">nom de la clé almacam stockant le parametre</param>
         /// <param name="parameters_dictionnary">nom du dictionnaire</param>
+        ///  <param name="parameters_dictionnary">valeur par defaut du parametre</param>
         /// <returns></returns>
-        public static bool get_bool_Parameter_Dictionary_Value(IContext contextlocal, string parametersetkey, string parameter_name, string parameterkeyname, ref Dictionary<string, object> parameters_dictionnary, bool defaultvalue)
+        public static bool Get_bool_Parameter_Dictionary_Value(IContext contextlocal, string parametersetkey, string parameter_name, string parameterkeyname, ref Dictionary<string, object> parameters_dictionnary, bool defaultvalue)
         {
             try
             {
@@ -4540,7 +4538,13 @@ public class MissingParameterException : Exception
 
     public MissingParameterException(string parametername) 
     {
-        MessageBox.Show("Il manque le parametres" + parametername +" dans la base almacam");
+        if (AF_Clipper_Dll.Clipper_Param.getVerbose_Log()==true) { 
+
+            MessageBox.Show("Il manque le parametres" + parametername +" dans la base almacam");
+            Alma_Log.Write_Log_Important("Il manque le parametres " + parametername + " dans la base almacam");
+        }
+        Alma_Log.Write_Log("Il manque le parametres " + parametername + " dans la base almacam.");
+
     }
 
    
