@@ -329,10 +329,6 @@ namespace AF_Export_Devis_Clipper
             catch (UnvalidatedQuoteConfigurations) { Environment.Exit(0);return false;   }
             catch (Exception ie) { MessageBox.Show(ie.Message); return false; }
         }
-
-
-
-
         /// <summary>
         /// preparation des directory en utilisant celles definies dans le contexte
         /// </summary>
@@ -383,8 +379,6 @@ namespace AF_Export_Devis_Clipper
             }
             catch (Exception ie) { MessageBox.Show(ie.Message); return false; }
         }
-
-
 
         /// <summary>
         /// creer les dpr du devis associés et copie eventuellement les dpr dans un autre dossier de destination 
@@ -466,8 +460,6 @@ namespace AF_Export_Devis_Clipper
 
 
         }
-
-
 
         /// <summary>
         /// export pour debugage
@@ -606,9 +598,6 @@ namespace AF_Export_Devis_Clipper
 
         }
 
-
-       
-
         #endregion
         /// <summary>
         /// export les dpr ainsi que le fichier trans
@@ -663,7 +652,12 @@ namespace AF_Export_Devis_Clipper
             File.AppendAllText(clipperFileName, file, Encoding.Default);
             return true;
         }
-
+        /// <summary>
+        /// export de l'entet des devis
+        /// </summary>
+        /// <param name="file">nom du fichier de sortie</param>
+        /// <param name="quote">Objet Iquote</param>
+        /// <param name="formatProvider">gestion des format deciamaux...</param>
         private void QuoteHeader(ref string file, IQuote quote, NumberFormatInfo formatProvider)
         {
             IEntity quoteEntity = quote.QuoteEntity;
@@ -747,12 +741,12 @@ namespace AF_Export_Devis_Clipper
 
             Write_Documents_Quote_Pdf(quoteEntity);
         }
-
-
-
-
-
-
+        /// <summary>
+        /// ligne apparaissant sur le devis (offre)
+        /// </summary>
+        /// <param name="file">nom du fichier de sortie</param>
+        /// <param name="quote">Objet Iquote</param>
+        /// <param name="formatProvider">gestion des format deciamaux...</param>
         private void QuoteOffre(ref string file, IQuote quote, NumberFormatInfo formatProvider)
         {
             IEntity quoteEntity = quote.QuoteEntity;
@@ -1019,12 +1013,16 @@ namespace AF_Export_Devis_Clipper
                 GlobalItem(ref file, quote, formatProvider, true, "001", "GLOBAL", "0");
             
         }
-
-
-
-
-
-
+        /// <summary>
+        /// gestion du transport
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="quote"></param>
+        /// <param name="formatProvider"></param>
+        /// <param name="doOffre"></param>
+        /// <param name="rang"></param>
+        /// <param name="reference"></param>
+        /// <param name="modele"></param>
         private void Transport(ref string file, IQuote quote, NumberFormatInfo formatProvider, bool doOffre, string rang, string reference, string modele)
         {
             IEntity quoteEntity = quote.QuoteEntity;
@@ -1232,9 +1230,6 @@ namespace AF_Export_Devis_Clipper
                 #endregion
             }
         }
-
-
-
         /// <summary>
         /// creation de la piece globale
         /// </summary>
@@ -1364,7 +1359,13 @@ namespace AF_Export_Devis_Clipper
                 AQuoteOperation(ref file, quote, null, globalOperationList, ref cutGaDevisPhase, rang, formatProvider, 1, 1, ref gadevisPhase, ref nomendvPhase, reference, modele);
             }
         }
-
+        /// <summary>
+        /// creation des quotes part
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="quote"></param>
+        /// <param name="rang"></param>
+        /// <param name="formatProvider"></param>
         private void QuotePart(ref string file, IQuote quote, string rang, NumberFormatInfo formatProvider)
         {
             IEntity quoteEntity = quote.QuoteEntity;
@@ -1590,6 +1591,131 @@ namespace AF_Export_Devis_Clipper
             }
         }
 
+        /// <summary>
+        /// creation des quotes tube
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="quote"></param>
+        /// <param name="rang"></param>
+        /// <param name="formatProvider"></param>
+        private void QuoteTube(ref string file, IQuote quote, string rang, NumberFormatInfo formatProvider)
+        {
+            IEntity quoteEntity = quote.QuoteEntity;
+            IEntity clientEntity = quoteEntity.GetFieldValueAsEntity("_FIRM");
+            //creation 
+            //string dpr_directory = quote.Context.ParameterSetManager.GetParameterValue("_EXPORT", "_ACTCUT_DPR_DIRECTORY").GetValueAsString();
+
+            //create dpr and directory
+
+            //obsolete fait par le getDrpPart
+
+            foreach (IEntity partEntity in quote.QuotePartList)
+            {
+                IEntity materialEntity = partEntity.GetFieldValueAsEntity("_MATERIAL");
+                string materialName = "";
+                if (materialEntity != null)
+                    materialName = materialEntity.GetFieldValueAsString("_NAME");
+
+                long partQty = 0;
+                partQty = partEntity.GetFieldValueAsLong("_PART_QUANTITY");
+
+                long totalPartQty = partEntity.GetFieldValueAsLong("_QUANTITY");
+                if (partQty > 0)
+                {
+                    long i = 0;
+                    string[] data = new string[50];
+                    string partReference = null;
+                    string partModele = null;
+                    GetReference(partEntity, "PART", false, out partReference, out partModele);
+
+
+
+
+
+                    data[i++] = "ENDEVIS";
+                    data[i++] = GetQuoteNumber(quoteEntity); //N° devis
+                    data[i++] = EmptyString(clientEntity.GetFieldValueAsString("_EXTERNAL_ID")).ToUpper(); //Code client
+                    data[i++] = partReference; //Code pièce
+                    data[i++] = ""; //Type (non utilisé)
+                    data[i++] = FormatDesignation(partEntity.GetFieldValueAsString("_DESCRIPTION")); //Désignation 1
+                    data[i++] = FormatDesignation(materialName); //Désignation 2
+                    data[i++] = FormatDesignation(""); //Désignation 3
+                    data[i++] = rang; //Rang
+                    data[i++] = partReference; //Code pièce ou Sous pièce (sous rang)
+                    data[i++] = FormatDesignation(partEntity.GetFieldValueAsString("_DESCRIPTION")); //Désignation pièce ou Sous pièce (sous rang)
+                    data[i++] = partEntity.Id.ToString(); //N° plan
+                    data[i++] = rang; //Niveau rang
+                    data[i++] = "3"; //Etat devis
+                    data[i++] = ""; //Repère
+                    data[i++] = "0"; //Origine fourniture
+                    data[i++] = "1"; //Qté dus/ensemble : 1 pour le rang 001
+                    data[i++] = "1"; //Qté totale de l'ensemble : 1 pour le rang 001
+                    data[i++] = ""; //Indice plan
+                    data[i++] = ""; //Indice gamme
+                    data[i++] = ""; //Indice nomenclature
+                    data[i++] = ""; //Indice pièce
+                    double weight = partEntity.GetFieldValueAsDouble("_WEIGHT");
+                    double weightEx = partEntity.GetFieldValueAsDouble("_WEIGHT_EX");
+                    weight = weight / 1000;
+                    weightEx = weightEx / 1000;
+                    data[i++] = weight.ToString("#0.0000", formatProvider); //Indice A
+                    data[i++] = weightEx.ToString("#0.0000", formatProvider); //Indice B
+                    data[i++] = "-" + partEntity.Id.ToString(); //Indice C  valeur - si piece quote et + si piece cam
+                    data[i++] = ""; //Indice D
+                    data[i++] = ""; //Indice E
+                    data[i++] = ""; //Indice F
+                    data[i++] = "0"; //N° identifiant GED 1
+                    data[i++] = "0"; //N° identifiant GED 2
+                    data[i++] = "0"; //N° identifiant GED 3
+                    data[i++] = "0"; //N° identifiant GED 4
+                    data[i++] = "0"; //N° identifiant GED 5
+                    data[i++] = "0"; //N° identifiant GED 6
+                    data[i++] = "0"; //N° identifiant GED 7
+                    data[i++] = "0"; //N° identifiant GED 8
+                    data[i++] = "0"; //N° identifiant GED 9
+                    data[i++] = "0"; //N° identifiant GED 10
+
+                   
+
+
+                    data[i++] = GetDprPath(partEntity, quote);
+                    data[i++] = ""; //Date d'injection
+                    data[i++] = partModele; //Modèle
+                    data[i++] = ""; //Employé responsable                
+                    WriteData(data, i, ref file);
+
+                    long gadevisPhase = 0;
+                    long nomendvPhase = 0;
+
+                    // Fourniture
+                    IList<IEntity> partSupplyList = new List<IEntity>(quote.GetPartSupplyList(partEntity));
+                    QuoteSupply(ref file, quote, 1, partSupplyList, rang, ref gadevisPhase, ref nomendvPhase, formatProvider, true, partReference, partModele);
+
+                    // Operation
+                    double totalMaterialPrice = partEntity.GetFieldValueAsDouble("_MAT_IN_COST");
+                    double materialPrice = totalMaterialPrice / totalPartQty;
+                    IList<IEntity> partOperationList = new List<IEntity>(quote.GetPartOperationList(partEntity));
+                    QuoteOperation(ref file, quote, partEntity, partOperationList, rang, formatProvider, 1, partQty, ref gadevisPhase, ref nomendvPhase, partReference, partModele, materialPrice);
+
+                    if (_GlobalExported == false)
+                    {
+                        if (quote.QuoteEntity.GetFieldValueAsLong("_TRANSPORT_PAYMENT_MODE") != 1) // Transport non facturé
+                            Transport(ref file, quote, formatProvider, false, "003", partReference, partModele);
+
+                        // On met les item globaux masqués sur la première pièces dans le rang "002"
+                        GlobalItem(ref file, quote, formatProvider, false, "002", partReference, partModele);
+                        _GlobalExported = true;
+                    }
+                }
+            }
+        }
+
+
+
+
+
+
+
 
 
         /// <summary>
@@ -1650,7 +1776,6 @@ namespace AF_Export_Devis_Clipper
             
 
         }
-
         /// <summary>
         /// cree les ensemble
         /// </summary>
@@ -1841,7 +1966,6 @@ namespace AF_Export_Devis_Clipper
                 QuoteOperation(ref file, quote, partEntity, partOperationList, rang, formatProvider, partSetQty, partSetQty, ref gaDevisPhase, ref nomendvPhase, setReference, setModele, materialPrice);
             }
         }
-
         #region gestion des emf/dpr
                     /// <summary>
                     /// creer les liens emf dans le fichier clipper
@@ -1982,7 +2106,6 @@ namespace AF_Export_Devis_Clipper
                     }
 
         #endregion
-
         private class GroupedCutOperation
         {
             public string CentreFrais;
@@ -2356,7 +2479,6 @@ namespace AF_Export_Devis_Clipper
 
             #endregion
         }
-
         /// <summary>
         /// traitement des fournitures
         /// </summary>
@@ -2475,9 +2597,7 @@ namespace AF_Export_Devis_Clipper
                 }
             }
         }
-
         #region Export Tools
-
         private static void WriteData(string[] data, long nbItem, ref string file)
         {
             string stringData = data[0];
@@ -2495,7 +2615,6 @@ namespace AF_Export_Devis_Clipper
             else
                 return s.Trim();
         }
-
         internal static string GetClipperCentreFrais(IEntity subQuoteOperation)
         {
             IParameterSet parameterSet = null;
@@ -2616,7 +2735,6 @@ namespace AF_Export_Devis_Clipper
                 _ReferenceIdList.Add(entity, new KeyValuePair<string, string>(reference, modele));
             }
         }
-
         ///remplacement les sauts de ligne par des espaces
         /// pas de gestion des rtf car specifique clipper sur les 
         /// pad de gestion des caracteres spéciaux (valeur_sortie=Regex.Replace(valeur_entrée, "[^a-zA-Z0-9_]", "");)
@@ -2651,9 +2769,6 @@ namespace AF_Export_Devis_Clipper
 
             return (quoteEntity.GetFieldValueAsLong("_INC_NO") + offset).ToString();
         }
-
-
-
         private string GetDprPath(IEntity partEntity, IQuote quote)
         {
             try {
@@ -2788,14 +2903,11 @@ namespace AF_Export_Devis_Clipper
 
         }
         #endregion
-        
         # region Document
         /// <summary>
         /// ecriteure de l'attacjhement DOCUMENT
         /// sous la forme DOCUMENT¤3¤<RépertoireSociété>\Documents\403 704 275 0.jpg¤403 704 275 0¤0
-        /// 
         /// </summary>
-        /// 
         private bool Write_Documents(IEntity Part, long quote_id,ref string file)
         {
             try {
@@ -2844,13 +2956,9 @@ namespace AF_Export_Devis_Clipper
             }
 
         }
-        
         /// <summary>
         /// ecriture du devis dans un dossier externalisé pour consultations
-        ///
-        /// 
         /// </summary>
-        /// 
         private bool Write_Documents_Quote_Pdf(IEntity quoteEntity)
         {
             try
@@ -2895,8 +3003,6 @@ namespace AF_Export_Devis_Clipper
             }
 
         }
-
-
         #endregion 
 
 
