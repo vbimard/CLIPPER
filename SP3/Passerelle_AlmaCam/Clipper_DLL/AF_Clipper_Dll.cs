@@ -314,35 +314,7 @@ namespace AF_Clipper_Dll
     /// les commandes processor designent les boutons d'action integerés dans l'interface almaquote 
     /// </summary>
  
-/*
-    public class Clipper_From_Workshop_Processor : CommandProcessor
-    {
-        public IContext contextlocal = null;
 
-
-        //appel de la lib d'export des besoins ici
-        public override bool Execute()
-        { //initialisation des listes
-
-           
-            
-            IEntity selectedNesting = Command.WorkOnEntity;
-            
-           
-
-            using (Clipper_DoOnAction_From_WorkShop Return_File = new Clipper_DoOnAction_From_WorkShop())
-            {
-
-                Return_File.Export(Command.Context, selectedNesting);//), csvImportPath);
-            }
-
-
-
-
-            return base.Execute();
-        }
-    }
-    */
 
 
 

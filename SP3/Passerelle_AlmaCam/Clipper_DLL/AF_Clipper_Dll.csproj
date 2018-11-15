@@ -155,8 +155,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetPath)" "C:\AlmaCAM\Bin\AF_$(SolutionName).dll"
-copy "C:\AlmaCAM\Bin\$(SolutionName)"  "C:\AlmaCAM\Bin\AlmaCam_Clipper\DLL\SP3\AF_$(SolutionName).dll"</PostBuildEvent>
+    <PostBuildEvent>copy "C:\AlmaCAM\Bin\AF_Clipper_Dll.dll"  "C:\AlmaCAM\Bin\AlmaCam_Clipper\DLL\SP3\AF_Clipper_Dll.dll"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

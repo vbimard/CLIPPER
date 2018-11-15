@@ -6,10 +6,10 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Clipper_Dll")]
-[assembly: AssemblyDescription("Passerelle Clipper 7 almacam 2.0")]
+[assembly: AssemblyDescription("Passerelle Clipper 7 almacam 2.1 Sp3")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Alma-Vincent de Bimard")]
-[assembly: AssemblyProduct("Clipper_Dll")]
+[assembly: AssemblyProduct("Clipper_Dll sp3")]
 [assembly: AssemblyCopyright("Copyright © Microsoft 2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -33,4 +33,4 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.7")]
-[assembly: AssemblyFileVersion("2.0.4.64498")]
+[assembly: AssemblyFileVersion("2.1.391.522")]
