@@ -2893,7 +2893,7 @@ namespace AF_Export_Devis_Clipper
                     
                 }
 
-                return emfFile;
+                return emfFile.Replace("\\\\","\\");
                 ///return string.Empty;
 
 

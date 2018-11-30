@@ -94,7 +94,7 @@ namespace AlmaCamTrainingTest
             int i = _Context.ModelsRepository.ModelList.Count();
             string infosPasserelle;
             
-            infosPasserelle= DbName + "-P." + AF_Clipper_Dll.Clipper_Param.getClipperDllVersion() + "-CAM." + AF_Clipper_Dll.Clipper_Param.getAlmaCAMCompatibleVerion();
+            infosPasserelle= DbName + "-P." + AF_Clipper_Dll.Clipper_Param.GetClipperDllVersion() + "-CAM." + AF_Clipper_Dll.Clipper_Param.GetAlmaCAMCompatibleVerion();
             this.Text = this.Name;
             this.InfosLabel.Text = infosPasserelle;
             this.Text = "Passerelle Clipper V8 validée pour : " + infosPasserelle;
@@ -199,7 +199,7 @@ namespace AlmaCamTrainingTest
             ProcessStartInfo start_dm = new ProcessStartInfo();
             start_dm.Arguments = "stock " + csvImportPath;
             //start.FileName =  @"C:\AlmaCAM\Bin\AlmaCamUser1.exe";
-            start_dm.FileName = Clipper_Param.get_application1();
+            start_dm.FileName = Clipper_Param.Get_application1();
             //start.WindowStyle = ProcessWindowStyle.Normal;
             start_dm.CreateNoWindow = true;
             start_dm.UseShellExecute = true;
@@ -217,11 +217,11 @@ namespace AlmaCamTrainingTest
             ProcessStartInfo start_ca = new ProcessStartInfo();
             start_ca.Arguments = "OF " + csvImportPath;
             //start.FileName = @"C:\AlmaCAM\Bin\Clipper_Import.exe";
-            start_ca.FileName = Clipper_Param.get_application1();
+            start_ca.FileName = Clipper_Param.Get_application1();
             //start.WindowStyle = ProcessWindowStyle.Normal;
             start_ca.CreateNoWindow = false;
             start_ca.UseShellExecute = true;
-            string exename = Clipper_Param.get_application1();
+            string exename = Clipper_Param.Get_application1();
             Process p = Process.Start(exename, "OF " + csvImportPath);
 
 
