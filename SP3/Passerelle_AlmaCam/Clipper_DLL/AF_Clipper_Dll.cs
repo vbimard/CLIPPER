@@ -3214,10 +3214,6 @@ namespace AF_Clipper_Dll
 
                                 stock.SetFieldValue(field.Key, field.Value);
                                 stock.SetFieldValue("_HEAT_NUMBER",field.Value );
-
-
-
-
                                 break;
 
                             
@@ -3225,7 +3221,9 @@ namespace AF_Clipper_Dll
                                 //on recuepere  les quantités de la chute courante de la chute
                                 //on verifie si les il y a des quantité en prod
                                 //on requalifie les quantité
-                                if (stock.GetFieldValueAsInt("_USED_QUANTITY") == 0)
+                                //if (stock.GetFieldValueAsInt("_BOOKED_QUANTITY") == 0)
+
+                                if  (stock.GetFieldValueAsEntity("_SHEET").GetFieldValueAsLong("_IN_PRODUCTION_QUANTITY") ==0)
                                 {
                                     stock.SetFieldValue(field.Key, field.Value);
                                 }
@@ -3771,14 +3769,14 @@ namespace AF_Clipper_Dll
 
                     //purge//
 
-
+                    
                     foreach (string idclip in GetOmmittedSheet(sheetId_list_from_txt_file, sheetId_list_from_database))
                     {
                         IEntity stockommitted = SimplifiedMethods.GetFirtOfList(contextlocal.EntityManager.GetEntityList("_STOCK", "IDCLIP", ConditionOperator.Equal, idclip));
                         stockommitted.SetFieldValue("_QUANTITY", 0);
                         stockommitted.Save();
                     }
-
+                    
                     //rendre obsoletre les qtés nulles
 
                     // Set cursor as default arrow
